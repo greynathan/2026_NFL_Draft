@@ -1,30 +1,93 @@
 import pandas as pd
+import os
 
 # Load the data
-nfl_combine_data = pd.read_csv('data/raw/nfl_combine_2010_to_2023.csv')
+nfl_combine_data = pd.read_csv('../data/raw/nfl_combine_2010_to_2023.csv')
 
-# Combine all the downloaded college stats data into a single dataframe
-defensive_stats_2016 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-13.csv')
-defensive_stats_2017 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-14.csv')
-defensive_stats_2018 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-15.csv')
-defensive_stats_2019 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-16.csv')
-defensive_stats_2020 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-17.csv')
-defensive_stats_2021 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-18.csv')
-defensive_stats_2022 = pd.read_csv('data/raw/defensive_stats_2016_to_2022/download-19.csv')
+# Load defensive stats data (use processed file if available, otherwise try individual files)
+if os.path.exists('../data/processed/defensive_stats_2016_to_2025.csv'):
+    defensive_stats_data = pd.read_csv('../data/processed/defensive_stats_2016_to_2025.csv')
+    # Filter to 2016-2022 to match original behavior
+    defensive_stats_data = defensive_stats_data[defensive_stats_data['Season'].between(2016, 2022)]
+else:
+    # Try loading individual files if processed file doesn't exist
+    defensive_stats_files = []
+    for year in range(2016, 2023):
+        file_path = f'../data/raw/defensive_stats_2016_to_2022/download-{year-2003}.csv'
+        if os.path.exists(file_path):
+            defensive_stats_files.append(pd.read_csv(file_path))
+    if defensive_stats_files:
+        defensive_stats_data = pd.concat(defensive_stats_files, ignore_index=True)
+    else:
+        print("Warning: No defensive stats files found. Continuing without defensive stats.")
+        defensive_stats_data = pd.DataFrame()
 
-# Combine all the defensive stats data into a single dataframe
-defensive_stats_data = pd.concat([defensive_stats_2016, defensive_stats_2017, defensive_stats_2018, defensive_stats_2019, defensive_stats_2020, defensive_stats_2021, defensive_stats_2022])
+# Load and combine PFF edge pass rush data (2014-2025)
+pff_files = []
+for year in range(2014, 2026):
+    file_path = f'../data/raw/pff/{year}_edge_pass_rush_summary.csv'
+    if os.path.exists(file_path):
+        df = pd.read_csv(file_path)
+        # Extract only the columns we need
+        pff_cols = ['player', 'team_name', 'true_pass_set_pass_rush_win_rate', 
+                   'pass_rush_win_rate', 'snap_counts_pass_rush']
+        df_subset = df[pff_cols].copy()
+        # Add Year column (PFF data is for the college season, so year in filename is the season)
+        df_subset['Year'] = year
+        # Rename columns to match combine data naming
+        df_subset = df_subset.rename(columns={
+            'player': 'Player',
+            'team_name': 'School'
+        })
+        pff_files.append(df_subset)
+        print(f'Loaded PFF data for {year}: {len(df_subset)} players')
 
-# Save for future use
-defensive_stats_data.to_csv('data/processed/defensive_stats_2016_to_2022.csv', index=False)
+# Combine all PFF data
+pff_data = pd.concat(pff_files, ignore_index=True)
+print(f'Total PFF records: {len(pff_data)}')
+
+# Load RAS (Raw Athletic Score) data for edges
+ras_df = pd.read_csv('../data/raw/ras.csv')
+ras_df = ras_df[ras_df['Pos'].isin(['DE', 'EDGE'])].copy()
+ras_df['RAS'] = pd.to_numeric(ras_df['RAS'], errors='coerce')
+ras_df['Year'] = ras_df['Year'].astype(int)
+ras_edges = ras_df[['Name', 'Year', 'RAS', 'College']].drop_duplicates(subset=['Name', 'Year'])
+print(f'Loaded RAS data: {len(ras_edges)} records')
 
 # Clean the data
 # Only defensive ends 
 nfl_combine_data_de_only = nfl_combine_data[(nfl_combine_data['Pos'] == 'DE') | (nfl_combine_data['Pos'] == 'EDGE')]
 print(nfl_combine_data_de_only.head())
 
-de_training_data = nfl_combine_data_de_only[nfl_combine_data_de_only['Year'] <= 2020]
-de_testing_data = nfl_combine_data_de_only[nfl_combine_data_de_only['Year'] > 2020]
+# Update split: training (2015-2023)
+edge_training_data = nfl_combine_data_de_only[nfl_combine_data_de_only['Year'].between(2015, 2023)].copy()
+
+# Load testing data from drafted edges CSVs (2024-2026)
+edges_2024 = pd.read_csv('edges_drafted_2024.csv')
+edges_2025 = pd.read_csv('edges_drafted_2025.csv')
+edges_2026 = pd.read_csv('edges_drafted_2026.csv')
+edge_testing_data = pd.concat([edges_2024, edges_2025, edges_2026], ignore_index=True)
+
+# Ensure Year column is int
+edge_testing_data['Year'] = edge_testing_data['Year'].astype(int)
+
+# Add Drafted column (all are drafted)
+edge_testing_data['Drafted'] = True
+
+# Drop old stats columns and calculated fields that will be recalculated
+cols_to_drop_testing = ['Sacks_cumulative', 'TFL_cumulative', 'QB_Hurry_cumulative',
+                        'Sacks_final_season', 'TFL_final_season', 'QB_Hurry_final_season',
+                        'speed_score', 'explosive_score', 'agility_score']
+edge_testing_data = edge_testing_data.drop(columns=cols_to_drop_testing, errors='ignore')
+
+# Process edges_2026 separately to update edges_drafted_2026.csv
+edges_2026_processed = edges_2026.copy()
+edges_2026_processed['Year'] = edges_2026_processed['Year'].astype(int)
+edges_2026_processed['Drafted'] = True
+edges_2026_processed = edges_2026_processed.drop(columns=cols_to_drop_testing, errors='ignore')
+
+# Ensure column order matches training data structure
+# Training columns: Year, Player, Pos, School, Height, Weight, 40yd, Vertical, Bench, Broad Jump, 3Cone, Shuttle, Drafted, Round, Pick, true_pass_set_pass_rush_win_rate, pass_rush_win_rate, snap_counts_pass_rush
 
 
 def get_college_stats(combine_df, defensive_stats_df):
@@ -122,10 +185,497 @@ def get_college_stats(combine_df, defensive_stats_df):
     return combine_df.drop(columns=['School_normalized'], errors='ignore')
 
 
-# Add college stats columns
-de_training_data = get_college_stats(de_training_data, defensive_stats_data)
-de_testing_data = get_college_stats(de_testing_data, defensive_stats_data)
+def add_pff_data(combine_df, pff_df):
+    """
+    Add PFF pass rush data by matching on Player name + School + Year.
+    PFF Year represents the college season, so for a player drafted in Year Y,
+    we match to PFF data from Year Y-1 (their final college season).
+    """
+    combine_df = combine_df.copy()
+    
+    # School name normalization for PFF data (PFF uses uppercase abbreviations)
+    def normalize_pff_school(name):
+        if pd.isna(name):
+            return name
+        name = str(name).strip().upper()
+        # Handle common PFF naming conventions (uppercase abbreviations)
+        school_mapping = {
+            'OHIO STATE': 'Ohio State',
+            'OHIO ST': 'Ohio State',
+            'FLORIDA ST': 'Florida State',
+            'FLORIDA STATE': 'Florida State',
+            'KANSAS ST': 'Kansas State',
+            'KANSAS STATE': 'Kansas State',
+            'IOWA ST': 'Iowa State',
+            'IOWA STATE': 'Iowa State',
+            'OKLAHOMA ST': 'Oklahoma State',
+            'OKLAHOMA STATE': 'Oklahoma State',
+            'PENN ST': 'Penn State',
+            'PENN STATE': 'Penn State',
+            'SAN DIEGO ST': 'San Diego State',
+            'S DIEGO ST': 'San Diego State',
+            'SAN DIEGO STATE': 'San Diego State',
+            'SAN JOSE ST': 'San Jose State',
+            'S JOSE ST': 'San Jose State',
+            'SAN JOSE STATE': 'San Jose State',
+            'MISSISSIPPI ST': 'Mississippi State',
+            'MISS STATE': 'Mississippi State',
+            'MISSISSIPPI STATE': 'Mississippi State',
+            'MICHIGAN ST': 'Michigan State',
+            'MICHIGAN STATE': 'Michigan State',
+            'NORTH CAROLINA ST': 'North Carolina State',
+            'NC STATE': 'North Carolina State',
+            'NORTH CAROLINA': 'North Carolina',
+            'SOUTH CAROLINA': 'South Carolina',
+            'NWESTERN': 'Northwestern',
+            'NORTHWESTERN': 'Northwestern',
+            'SOUTHERN CAL': 'USC',
+            'SOUTHERN CALIFORNIA': 'USC',
+            'CENTRAL FLORIDA': 'UCF',
+            'UCF': 'UCF',  # Handle UCF directly
+            'BRIGHAM YOUNG': 'BYU',
+            'MIAMI (FL)': 'Miami',
+            'MIAMI FL': 'Miami',
+            'MIAMI': 'Miami',
+            'MIAMI OH': 'Miami (OH)',  # Different school - Miami University (Ohio)
+            'OLE MISS': 'Mississippi',
+            'ALABAMA-BIRMINGHAM': 'UAB',
+            'UAB': 'UAB',
+            'TENN-CHATTANOOGA': 'Chattanooga',
+            'C MICHIGAN': 'Central Michigan',
+            'CENTRAL MICHIGAN': 'Central Michigan',
+            'W MICHIGAN': 'Western Michigan',
+            'WESTERN MICHIGAN': 'Western Michigan',
+            'E MICHIGAN': 'Eastern Michigan',
+            'EASTERN MICHIGAN': 'Eastern Michigan',
+            'FRESNO ST': 'Fresno State',
+            'FRESNO STATE': 'Fresno State',
+            'BOISE ST': 'Boise State',
+            'BOISE STATE': 'Boise State',
+            'ARIZONA ST': 'Arizona State',
+            'ARIZONA STATE': 'Arizona State',
+            'OREGON ST': 'Oregon State',
+            'OREGON STATE': 'Oregon State',
+            'COLORADO ST': 'Colorado State',
+            'COLORADO STATE': 'Colorado State',
+            'UTAH ST': 'Utah State',
+            'UTAH STATE': 'Utah State',
+            'WYOMING': 'Wyoming',
+            'UNLV': 'UNLV',
+            'ALABAMA': 'Alabama',
+            'ARKANSAS': 'Arkansas',
+            'COLORADO': 'Colorado',
+            'KENTUCKY': 'Kentucky',
+            'UCLA': 'UCLA',
+            'LSU': 'LSU',
+            'TCU': 'TCU',
+            'USC': 'USC',
+            'SOUTHERN CAL': 'USC',
+            'SOUTHERN CALIFORNIA': 'USC',
+            'WASHINGTON STATE': 'Washington State',
+            'WSU': 'Washington State',
+            'WASH STATE': 'Washington State',
+            'COLORADO STATE': 'Colorado State',
+            'COLO STATE': 'Colorado State',
+            'BOSTON COL': 'Boston College',
+            'BOSTON COLLEGE': 'Boston College',
+            'VA TECH': 'Virginia Tech',
+            'VIRGINIA TECH': 'Virginia Tech',
+            'TEXAS ST': 'Texas State',
+            'TEXAS STATE': 'Texas State',
+            'LA TECH': 'Louisiana Tech',
+            'LOUISIANA TECH': 'Louisiana Tech',
+            'OKLA STATE': 'Oklahoma State',
+            'OKLAHOMA STATE': 'Oklahoma State',
+            'OKLAHOMA': 'Oklahoma State',  # Some PFF entries just say "OKLAHOMA"
+            'NC STATE': 'North Carolina State',
+            'NORTH CAROLINA STATE': 'North Carolina State',
+            'PENN STATE': 'Penn State',
+            'PENN ST': 'Penn State',
+            'MICHIGAN ST': 'Michigan State',
+            'MICH STATE': 'Michigan State',
+            'MICHIGAN STATE': 'Michigan State',
+            'APPALACHIAN ST': 'Appalachian State',
+            'APPALACHIAN STATE': 'Appalachian State',
+            'APP ST': 'Appalachian State',
+            'FLORIDA ATLANTIC': 'Florida Atlantic',
+            'FAU': 'Florida Atlantic',
+            'TEXAS SAN ANTONIO': 'Texas-San Antonio',
+            'UTSA': 'Texas-San Antonio',
+            'TEXAS TECH': 'Texas Tech',  # Different from UTSA
+            'TOLEDO': 'Toledo',
+            'GA SOUTHRN': 'Georgia Southern',
+            'GEORGIA SOUTHERN': 'Georgia Southern',
+        }
+        # Check if exact match exists
+        if name in school_mapping:
+            return school_mapping[name]
+        # Otherwise try title case (for names not in mapping)
+        return name.title()
+    
+    # Normalize school names in both dataframes
+    pff_df_normalized = pff_df.copy()
+    pff_df_normalized['School_normalized'] = pff_df_normalized['School'].apply(normalize_pff_school)
+    
+    # Normalize combine school names (handle common variations)
+    def normalize_combine_school(name):
+        if pd.isna(name):
+            return name
+        name = str(name).strip()
+        # Use the same school alias mapping from get_college_stats for consistency
+        school_alias = {
+            'Ole Miss': 'Mississippi',
+            'Miami (FL)': 'Miami',
+            'Miami': 'Miami',  # Handle both formats
+            'Southern California': 'USC',
+            'USC': 'USC',
+            'UCLA': 'UCLA',
+            'Central Florida': 'UCF',
+            'UCF': 'UCF',  # Handle both formats
+            'Brigham Young': 'BYU',
+            'Ohio St.': 'Ohio State',
+            'Ohio State': 'Ohio State',  # Handle both formats
+            'Florida St.': 'Florida State',
+            'Florida State': 'Florida State',  # Handle both formats
+            'Kansas St.': 'Kansas State',
+            'Kansas State': 'Kansas State',  # Handle both formats
+            'Iowa St.': 'Iowa State',
+            'Iowa State': 'Iowa State',  # Handle both formats
+            'Oklahoma St.': 'Oklahoma State',
+            'Oklahoma State': 'Oklahoma State',  # Handle both formats
+            'Penn St.': 'Penn State',
+            'Penn State': 'Penn State',  # Handle both formats
+            'San Diego St.': 'San Diego State',
+            'San Diego State': 'San Diego State',  # Handle both formats
+            'San Jose St.': 'San Jose State',
+            'San Jose State': 'San Jose State',  # Handle both formats
+            'Boston Col.': 'Boston College',
+            'Boston College': 'Boston College',  # Handle both formats
+            'Alabama-Birmingham': 'UAB',
+            'Tenn-Chattanooga': 'Chattanooga',
+            'Washington State': 'Washington State',
+            'Colorado State': 'Colorado State',
+            'Northwestern': 'Northwestern',
+            'LSU': 'LSU',
+            'Virginia Tech': 'Virginia Tech',
+            'Texas State': 'Texas State',
+            'Louisiana Tech': 'Louisiana Tech',
+            'Oklahoma State': 'Oklahoma State',
+            'Oklahoma St.': 'Oklahoma State',
+            'North Carolina State': 'North Carolina State',
+            'NC State': 'North Carolina State',
+            'Appalachian State': 'Appalachian State',
+            'Appalachian St.': 'Appalachian State',
+            'App St.': 'Appalachian State',
+            'Florida Atlantic': 'Florida Atlantic',
+            'Texas-San Antonio': 'Texas-San Antonio',
+            'UTSA': 'Texas-San Antonio',
+            'Toledo': 'Toledo',
+            'Georgia Southern': 'Georgia Southern',
+            'Ga. Southern': 'Georgia Southern',
+            'Kentucky': 'Kentucky',
+            'TCU': 'TCU',
+        }
+        return school_alias.get(name, name)
+    
+    combine_df['School_normalized'] = combine_df['School'].apply(normalize_combine_school)
+    
+    def normalize_player_name(name):
+        """Normalize player name by removing punctuation and extra spaces for matching."""
+        import re
+        # Convert to uppercase, strip whitespace, remove periods and other punctuation
+        normalized = str(name).strip().upper()
+        # Remove suffixes like "III", "II", "JR", "SR" etc.
+        normalized = re.sub(r'\s+(III|II|JR|SR|JR\.|SR\.)$', '', normalized)
+        # Remove periods, commas, hyphens, apostrophes, etc. but keep spaces
+        normalized = re.sub(r'[.\',\-]', '', normalized)
+        # Normalize multiple spaces to single space
+        normalized = re.sub(r'\s+', ' ', normalized).strip()
+        return normalized
+    
+    # Pre-compute normalized PFF player names for efficient matching
+    pff_df_normalized['Player_normalized'] = pff_df_normalized['Player'].apply(normalize_player_name)
+    
+    def lookup_pff_stats(row):
+        draft_year = int(row['Year'])
+        final_season = draft_year - 1  # PFF data is for the college season
+        player = normalize_player_name(row['Player'])
+        school = row['School_normalized']
+        
+        # Handle nickname/alternate name mappings (use normalized names)
+        player_nickname_map = {
+            'DEMEIOUN ROBINSON': 'CHOP ROBINSON',  # Also known as Chop Robinson
+            'ALVIN DUPREE': 'BUD DUPREE',  # Alvin "Bud" Dupree
+            'JAYSON OWEH': 'ODAFE OWEH',  # Odafe "Jayson" Oweh
+            'OWAMAGBE ODIGHIZUWA': 'OWA ODIGHIZUWA',  # Owamagbe "Owa" Odighizuwa
+            'OGBONNIA OKORONKWO': 'OGBO OKORONKWO',  # Ogbonnia "Ogbo" Okoronkwo
+        }
+        player_to_search = player_nickname_map.get(player, player)
+        
+        # Match on Player + School + Year (final college season)
+        # Use normalized player names (punctuation removed)
+        # Try exact match first
+        mask = (
+            (pff_df_normalized['Player_normalized'] == player_to_search) &
+            (pff_df_normalized['School_normalized'] == school) &
+            (pff_df_normalized['Year'] == final_season)
+        )
+        
+        # If no match and we have a nickname, try the original name too
+        if not mask.any() and player_to_search != player:
+            mask = (
+                (pff_df_normalized['Player_normalized'] == player) &
+                (pff_df_normalized['School_normalized'] == school) &
+                (pff_df_normalized['Year'] == final_season)
+            )
+        
+        pff_stats = pff_df_normalized.loc[mask]
+        if pff_stats.empty:
+            return pd.Series({
+                'true_pass_set_pass_rush_win_rate': None,
+                'pass_rush_win_rate': None,
+                'snap_counts_pass_rush': None,
+            })
+        
+        # Take the first match if multiple (shouldn't happen, but just in case)
+        pff_row = pff_stats.iloc[0]
+        return pd.Series({
+            'true_pass_set_pass_rush_win_rate': pff_row['true_pass_set_pass_rush_win_rate'],
+            'pass_rush_win_rate': pff_row['pass_rush_win_rate'],
+            'snap_counts_pass_rush': pff_row['snap_counts_pass_rush'],
+        })
+    
+    pff_cols = combine_df.apply(lookup_pff_stats, axis=1)
+    for col in pff_cols.columns:
+        combine_df[col] = pff_cols[col]
+    
+    return combine_df.drop(columns=['School_normalized'], errors='ignore')
+
+
+def add_ras_data(combine_df, ras_df):
+    """
+    Add RAS (Raw Athletic Score) data by matching on Player name + Year.
+    Uses normalized names and school mappings similar to PFF matching.
+    """
+    combine_df = combine_df.copy()
+    
+    def normalize_player_name(name):
+        """Normalize player name by removing punctuation and suffixes."""
+        import re
+        normalized = str(name).strip().upper()
+        # Remove suffixes like "III", "II", "JR", "SR" etc.
+        normalized = re.sub(r'\s+(III|II|JR|SR|JR\.|SR\.)$', '', normalized)
+        # Remove periods, commas, hyphens, apostrophes, etc. but keep spaces
+        normalized = re.sub(r'[.\',\-]', '', normalized)
+        # Normalize multiple spaces to single space
+        normalized = re.sub(r'\s+', ' ', normalized).strip()
+        return normalized
+    
+    def normalize_ras_school(name):
+        """Normalize RAS school name to match combine data format."""
+        if pd.isna(name):
+            return name
+        name = str(name).strip()
+        # RAS school mapping (RAS uses full school names, but may have variations)
+        school_mapping = {
+            'Miami (FL)': 'Miami',
+            'Miami': 'Miami',
+            'Boston Col.': 'Boston College',
+            'Boston College': 'Boston College',
+            'Southern California': 'USC',
+            'USC': 'USC',
+            'UCLA': 'UCLA',
+            'Central Florida': 'UCF',
+            'UCF': 'UCF',
+            'Brigham Young': 'BYU',
+            'BYU': 'BYU',
+            'Ole Miss': 'Mississippi',
+            'Mississippi': 'Mississippi',
+            'Ohio St.': 'Ohio State',
+            'Ohio State': 'Ohio State',
+            'Florida St.': 'Florida State',
+            'Florida State': 'Florida State',
+            'Oklahoma St.': 'Oklahoma State',
+            'Oklahoma State': 'Oklahoma State',
+            'Penn St.': 'Penn State',
+            'Penn State': 'Penn State',
+            'Michigan St.': 'Michigan State',
+            'Michigan State': 'Michigan State',
+            'North Carolina State': 'North Carolina State',
+            'NC State': 'North Carolina State',
+            'Virginia Tech': 'Virginia Tech',
+            'Texas State': 'Texas State',
+            'Louisiana Tech': 'Louisiana Tech',
+            'Appalachian State': 'Appalachian State',
+            'Florida Atlantic': 'Florida Atlantic',
+            'Texas-San Antonio': 'Texas-San Antonio',
+            'UTSA': 'Texas-San Antonio',
+            'Toledo': 'Toledo',
+            'Georgia Southern': 'Georgia Southern',
+            'Kentucky': 'Kentucky',
+            'TCU': 'TCU',
+            'Texas Christian': 'TCU',  # RAS uses full name
+            'Louisiana State': 'LSU',  # RAS uses full name
+            'LSU': 'LSU',
+        }
+        return school_mapping.get(name, name)
+    
+    def normalize_combine_school_for_ras(name):
+        """Normalize combine school name for RAS matching."""
+        if pd.isna(name):
+            return name
+        name = str(name).strip()
+        # Use same mapping as normalize_combine_school
+        school_alias = {
+            'Ole Miss': 'Mississippi',
+            'Miami (FL)': 'Miami',
+            'Miami': 'Miami',
+            'Southern California': 'USC',
+            'USC': 'USC',
+            'UCLA': 'UCLA',
+            'Central Florida': 'UCF',
+            'UCF': 'UCF',
+            'Brigham Young': 'BYU',
+            'Ohio St.': 'Ohio State',
+            'Ohio State': 'Ohio State',
+            'Florida St.': 'Florida State',
+            'Florida State': 'Florida State',
+            'Kansas St.': 'Kansas State',
+            'Kansas State': 'Kansas State',
+            'Iowa St.': 'Iowa State',
+            'Iowa State': 'Iowa State',
+            'Oklahoma St.': 'Oklahoma State',
+            'Oklahoma State': 'Oklahoma State',
+            'Penn St.': 'Penn State',
+            'Penn State': 'Penn State',
+            'San Diego St.': 'San Diego State',
+            'San Diego State': 'San Diego State',
+            'San Jose St.': 'San Jose State',
+            'San Jose State': 'San Jose State',
+            'Boston Col.': 'Boston College',
+            'Boston College': 'Boston College',
+            'Alabama-Birmingham': 'UAB',
+            'Tenn-Chattanooga': 'Chattanooga',
+            'Washington State': 'Washington State',
+            'Colorado State': 'Colorado State',
+            'Northwestern': 'Northwestern',
+            'LSU': 'LSU',
+            'Virginia Tech': 'Virginia Tech',
+            'Texas State': 'Texas State',
+            'Louisiana Tech': 'Louisiana Tech',
+            'Oklahoma State': 'Oklahoma State',
+            'North Carolina State': 'North Carolina State',
+            'NC State': 'North Carolina State',
+            'Appalachian State': 'Appalachian State',
+            'Appalachian St.': 'Appalachian State',
+            'App St.': 'Appalachian State',
+            'Florida Atlantic': 'Florida Atlantic',
+            'Texas-San Antonio': 'Texas-San Antonio',
+            'UTSA': 'Texas-San Antonio',
+            'Toledo': 'Toledo',
+            'Georgia Southern': 'Georgia Southern',
+            'Ga. Southern': 'Georgia Southern',
+            'Kentucky': 'Kentucky',
+            'TCU': 'TCU',
+            'Texas Christian': 'TCU',
+            'Louisiana State': 'LSU',
+            'LSU': 'LSU',
+        }
+        return school_alias.get(name, name)
+    
+    # Normalize RAS data
+    ras_df_normalized = ras_df.copy()
+    ras_df_normalized['Name_normalized'] = ras_df_normalized['Name'].apply(normalize_player_name)
+    ras_df_normalized['College_normalized'] = ras_df_normalized['College'].apply(normalize_ras_school)
+    
+    # Handle nickname/alternate name mappings (use normalized names)
+    player_nickname_map = {
+        'DEMEIOUN ROBINSON': 'CHOP ROBINSON',
+        'ALVIN DUPREE': 'BUD DUPREE',
+        'JAYSON OWEH': 'ODAFE OWEH',
+        'OWAMAGBE ODIGHIZUWA': 'OWA ODIGHIZUWA',
+        'OGBONNIA OKORONKWO': 'OGBO OKORONKWO',
+    }
+    
+    def lookup_ras(row):
+        player = normalize_player_name(row['Player'])
+        school = normalize_combine_school_for_ras(row['School'])
+        year = int(row['Year'])
+        
+        player_to_search = player_nickname_map.get(player, player)
+        
+        # Match on normalized Player + normalized School + Year
+        mask = (
+            (ras_df_normalized['Name_normalized'] == player_to_search) &
+            (ras_df_normalized['College_normalized'] == school) &
+            (ras_df_normalized['Year'] == year)
+        )
+        
+        # If no match and we have a nickname, try the original name too
+        if not mask.any() and player_to_search != player:
+            mask = (
+                (ras_df_normalized['Name_normalized'] == player) &
+                (ras_df_normalized['College_normalized'] == school) &
+                (ras_df_normalized['Year'] == year)
+            )
+        
+        ras_match = ras_df_normalized.loc[mask]
+        if ras_match.empty:
+            return pd.Series({'RAS': None})
+        
+        # Take the first match if multiple
+        return pd.Series({'RAS': ras_match.iloc[0]['RAS']})
+    
+    ras_cols = combine_df.apply(lookup_ras, axis=1)
+    combine_df['RAS'] = ras_cols['RAS']
+    
+    return combine_df
+
+
+# Skip college stats columns (QB_Hurry, TFL, Sacks) - no longer needed
+# if not defensive_stats_data.empty:
+#     edge_training_data = get_college_stats(edge_training_data, defensive_stats_data)
+#     edge_testing_data = get_college_stats(edge_testing_data, defensive_stats_data)
+# else:
+#     print("Skipping college stats addition - no defensive stats data available")
+
+# Add PFF data
+edge_training_data = add_pff_data(edge_training_data, pff_data)
+edge_testing_data = add_pff_data(edge_testing_data, pff_data)
+edges_2026_processed = add_pff_data(edges_2026_processed, pff_data)
+
+# Add RAS data
+edge_training_data = add_ras_data(edge_training_data, ras_edges)
+edge_testing_data = add_ras_data(edge_testing_data, ras_edges)
+edges_2026_processed = add_ras_data(edges_2026_processed, ras_edges)
+
+# Drop college stats columns if they exist (no longer needed)
+cols_to_drop = ['Sacks_cumulative', 'TFL_cumulative', 'QB_Hurry_cumulative',
+                'Sacks_final_season', 'TFL_final_season', 'QB_Hurry_final_season']
+edge_training_data = edge_training_data.drop(columns=cols_to_drop, errors='ignore')
+edge_testing_data = edge_testing_data.drop(columns=cols_to_drop, errors='ignore')
+
+# Reorder columns to match training data structure
+training_cols_order = ['Year', 'Player', 'Pos', 'School', 'Height', 'Weight', '40yd', 'Vertical', 
+                       'Bench', 'Broad Jump', '3Cone', 'Shuttle', 'Drafted', 'Round', 'Pick',
+                       'RAS', 'true_pass_set_pass_rush_win_rate', 'pass_rush_win_rate', 'snap_counts_pass_rush']
+# Only include columns that exist in the dataframe
+edge_testing_data = edge_testing_data[[col for col in training_cols_order if col in edge_testing_data.columns]]
+edge_training_data = edge_training_data[[col for col in training_cols_order if col in edge_training_data.columns]]
 
 # Save the data
-de_training_data.to_csv('data/processed/de_training_data.csv', index=False)
-de_testing_data.to_csv('data/processed/de_testing_data.csv', index=False)
+edge_training_data.to_csv('../data/processed/edge_training.csv', index=False)
+edge_testing_data.to_csv('../data/processed/edge_testing.csv', index=False)
+
+# Save updated edges_drafted_2026.csv with PFF data and without old stats
+# Reorder to match original CSV structure (Round, Pick, Player, Pos, School, Year, then combine metrics, then RAS, then PFF metrics)
+edges_2026_cols_order = ['Round', 'Pick', 'Player', 'Pos', 'School', 'Year', 'Height', 'Weight', 
+                         '40yd', 'Vertical', 'Bench', 'Broad Jump', '3Cone', 'Shuttle',
+                         'RAS', 'true_pass_set_pass_rush_win_rate', 'pass_rush_win_rate', 'snap_counts_pass_rush']
+edges_2026_final = edges_2026_processed[[col for col in edges_2026_cols_order if col in edges_2026_processed.columns]]
+edges_2026_final.to_csv('edges_drafted_2026.csv', index=False)
+
+print(f'\nSaved edge_training.csv: {len(edge_training_data)} players (2015-2023)')
+print(f'Saved edge_testing.csv: {len(edge_testing_data)} players (2024-2026)')
+print(f'Saved edges_drafted_2026.csv: {len(edges_2026_final)} players (updated with PFF data, old stats removed)')
+print(f'\nColumns in training data: {list(edge_training_data.columns)}')
