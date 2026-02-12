@@ -1,0 +1,33 @@
+Fetching search page 1... found 20 players (total 20)
+Fetching search page 2... found 20 players (total 40)
+Fetching search page 3... found 20 players (total 60)
+Fetching search page 4... found 20 players (total 80)
+Fetching search page 5... found 20 players (total 100)
+Fetching search page 6... found 20 players (total 120)
+Fetching search page 7... found 20 players (total 140)
+Fetching search page 8... found 20 players (total 160)
+Fetching search page 9... found 20 players (total 180)
+Fetching search page 10... found 20 players (total 200)
+Fetching search page 11... found 20 players (total 220)
+Fetching search page 12... found 20 players (total 240)
+Fetching search page 13... found 20 players (total 260)
+Fetching search page 14... found 20 players (total 280)
+Fetching search page 15... found 20 players (total 300)
+Fetching search page 16... found 20 players (total 320)
+Fetching search page 17... found 20 players (total 340)
+Fetching search page 18... found 20 players (total 360)
+Fetching search page 19... found 20 players (total 380)
+Fetching search page 20... found 20 players (total 400)
+
+Scraping 400 player pages for arm length...
+  50/400 ...
+  100/400 ...
+  150/400 ...
+  200/400 ...
+  250/400 ...
+  300/400 ...
+  350/400 ...
+  400/400 ...
+
+Saved 400 rows to /Users/nathangrey/Desktop/2026_NFL_Draft/Edges/../data/raw/mockdraftable_edge_arm_length.csv
+Arm length present for 249 players.

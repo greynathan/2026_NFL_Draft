@@ -22,15 +22,18 @@ else:
         print("Warning: No defensive stats files found. Continuing without defensive stats.")
         defensive_stats_data = pd.DataFrame()
 
+# PFF data lives under data/raw/pff/Edges/
+PFF_EDGES_DIR = '../data/raw/pff/Edges'
+
 # Load and combine PFF edge pass rush data (2014-2025)
 pff_files = []
 for year in range(2014, 2026):
-    file_path = f'../data/raw/pff/{year}_edge_pass_rush_summary.csv'
+    file_path = os.path.join(PFF_EDGES_DIR, f'{year}_edge_pass_rush_summary.csv')
     if os.path.exists(file_path):
         df = pd.read_csv(file_path)
         # Extract only the columns we need
-        pff_cols = ['player', 'team_name', 'true_pass_set_pass_rush_win_rate', 
-                   'pass_rush_win_rate', 'snap_counts_pass_rush']
+        pff_cols = ['player', 'team_name', 'true_pass_set_pass_rush_win_rate',
+                    'pass_rush_win_rate', 'snap_counts_pass_rush']
         df_subset = df[pff_cols].copy()
         # Add Year column (PFF data is for the college season, so year in filename is the season)
         df_subset['Year'] = year
@@ -40,11 +43,47 @@ for year in range(2014, 2026):
             'team_name': 'School'
         })
         pff_files.append(df_subset)
-        print(f'Loaded PFF data for {year}: {len(df_subset)} players')
+        print(f'Loaded PFF pass rush for {year}: {len(df_subset)} players')
 
-# Combine all PFF data
+# Combine all PFF pass rush data
 pff_data = pd.concat(pff_files, ignore_index=True)
-print(f'Total PFF records: {len(pff_data)}')
+print(f'Total PFF pass rush records: {len(pff_data)}')
+
+# Load and combine PFF edge run defense data (2014-2025) for stop_percent
+run_defense_files = []
+for year in range(2014, 2026):
+    file_path = os.path.join(PFF_EDGES_DIR, f'{year}_edge_run_defense_summary.csv')
+    if os.path.exists(file_path):
+        df = pd.read_csv(file_path)
+        # Keep only edge rushers (ED; DE if present)
+        if 'position' in df.columns:
+            df = df[df['position'].isin(['ED', 'DE'])].copy()
+        run_cols = ['player', 'team_name', 'stop_percent']
+        df_subset = df[[c for c in run_cols if c in df.columns]].copy()
+        if 'stop_percent' not in df_subset.columns:
+            continue
+        df_subset['Year'] = year
+        df_subset = df_subset.rename(columns={
+            'player': 'Player',
+            'team_name': 'School'
+        })
+        run_defense_files.append(df_subset)
+        print(f'Loaded PFF run defense for {year}: {len(df_subset)} edge players')
+
+if run_defense_files:
+    run_defense_data = pd.concat(run_defense_files, ignore_index=True)
+    run_defense_data['stop_percent'] = pd.to_numeric(run_defense_data['stop_percent'], errors='coerce')
+    run_defense_data = run_defense_data.drop_duplicates(subset=['Player', 'School', 'Year'], keep='first')
+    # Merge stop_percent into pff_data on Player, School, Year (left merge to keep all pass rush rows)
+    pff_data = pff_data.merge(
+        run_defense_data[['Player', 'School', 'Year', 'stop_percent']],
+        on=['Player', 'School', 'Year'],
+        how='left'
+    )
+    print(f'Merged run defense stop_percent into PFF data; columns: {list(pff_data.columns)}')
+else:
+    pff_data['stop_percent'] = None
+    print('No run defense files found; stop_percent will be empty.')
 
 # Load RAS (Raw Athletic Score) data for edges
 ras_df = pd.read_csv('../data/raw/ras.csv')
@@ -53,6 +92,20 @@ ras_df['RAS'] = pd.to_numeric(ras_df['RAS'], errors='coerce')
 ras_df['Year'] = ras_df['Year'].astype(int)
 ras_edges = ras_df[['Name', 'Year', 'RAS', 'College']].drop_duplicates(subset=['Name', 'Year'])
 print(f'Loaded RAS data: {len(ras_edges)} records')
+
+# Load MockDraftable arm length (scraped for our training/testing/2026 players)
+arm_length_path = '../data/raw/mockdraftable_edge_arm_length.csv'
+if os.path.exists(arm_length_path):
+    arm_length_df = pd.read_csv(arm_length_path)
+    arm_length_df['Year'] = arm_length_df['Year'].astype(int)
+    # Keep one row per (Player, Year) - take first if duplicates
+    arm_length_df = arm_length_df.drop_duplicates(subset=['Player', 'Year'], keep='first')
+    arm_length_df = arm_length_df[['Player', 'Year', 'arm_length_inches']].copy()
+    arm_length_df['arm_length_inches'] = pd.to_numeric(arm_length_df['arm_length_inches'], errors='coerce')
+    print(f'Loaded arm length data: {len(arm_length_df)} records ({arm_length_df["arm_length_inches"].notna().sum()} with values)')
+else:
+    arm_length_df = pd.DataFrame(columns=['Player', 'Year', 'arm_length_inches'])
+    print('No mockdraftable_edge_arm_length.csv found; arm_length_inches will be empty.')
 
 # Clean the data
 # Only defensive ends 
@@ -431,19 +484,25 @@ def add_pff_data(combine_df, pff_df):
         
         pff_stats = pff_df_normalized.loc[mask]
         if pff_stats.empty:
-            return pd.Series({
+            out = {
                 'true_pass_set_pass_rush_win_rate': None,
                 'pass_rush_win_rate': None,
                 'snap_counts_pass_rush': None,
-            })
+            }
+            if 'stop_percent' in pff_df_normalized.columns:
+                out['stop_percent'] = None
+            return pd.Series(out)
         
         # Take the first match if multiple (shouldn't happen, but just in case)
         pff_row = pff_stats.iloc[0]
-        return pd.Series({
+        out = {
             'true_pass_set_pass_rush_win_rate': pff_row['true_pass_set_pass_rush_win_rate'],
             'pass_rush_win_rate': pff_row['pass_rush_win_rate'],
             'snap_counts_pass_rush': pff_row['snap_counts_pass_rush'],
-        })
+        }
+        if 'stop_percent' in pff_df_normalized.columns:
+            out['stop_percent'] = pff_row['stop_percent']
+        return pd.Series(out)
     
     pff_cols = combine_df.apply(lookup_pff_stats, axis=1)
     for col in pff_cols.columns:
@@ -628,8 +687,24 @@ def add_ras_data(combine_df, ras_df):
     
     ras_cols = combine_df.apply(lookup_ras, axis=1)
     combine_df['RAS'] = ras_cols['RAS']
-    
+
     return combine_df
+
+
+def add_arm_length(combine_df, arm_df):
+    """
+    Add arm_length_inches by left merge on Player + Year.
+    """
+    combine_df = combine_df.drop(columns=['arm_length_inches'], errors='ignore')
+    if arm_df.empty or 'arm_length_inches' not in arm_df.columns:
+        combine_df['arm_length_inches'] = None
+        return combine_df
+    out = combine_df.merge(
+        arm_df[['Player', 'Year', 'arm_length_inches']],
+        on=['Player', 'Year'],
+        how='left'
+    )
+    return out
 
 
 # Skip college stats columns (QB_Hurry, TFL, Sacks) - no longer needed
@@ -649,6 +724,11 @@ edge_training_data = add_ras_data(edge_training_data, ras_edges)
 edge_testing_data = add_ras_data(edge_testing_data, ras_edges)
 edges_2026_processed = add_ras_data(edges_2026_processed, ras_edges)
 
+# Add arm length (MockDraftable); 2026 will be empty until we scrape
+edge_training_data = add_arm_length(edge_training_data, arm_length_df)
+edge_testing_data = add_arm_length(edge_testing_data, arm_length_df)
+edges_2026_processed = add_arm_length(edges_2026_processed, arm_length_df)
+
 # Drop college stats columns if they exist (no longer needed)
 cols_to_drop = ['Sacks_cumulative', 'TFL_cumulative', 'QB_Hurry_cumulative',
                 'Sacks_final_season', 'TFL_final_season', 'QB_Hurry_final_season']
@@ -656,9 +736,9 @@ edge_training_data = edge_training_data.drop(columns=cols_to_drop, errors='ignor
 edge_testing_data = edge_testing_data.drop(columns=cols_to_drop, errors='ignore')
 
 # Reorder columns to match training data structure
-training_cols_order = ['Year', 'Player', 'Pos', 'School', 'Height', 'Weight', '40yd', 'Vertical', 
+training_cols_order = ['Year', 'Player', 'Pos', 'School', 'Height', 'Weight', '40yd', 'Vertical',
                        'Bench', 'Broad Jump', '3Cone', 'Shuttle', 'Drafted', 'Round', 'Pick',
-                       'RAS', 'true_pass_set_pass_rush_win_rate', 'pass_rush_win_rate', 'snap_counts_pass_rush']
+                       'RAS', 'arm_length_inches', 'true_pass_set_pass_rush_win_rate', 'pass_rush_win_rate', 'snap_counts_pass_rush', 'stop_percent']
 # Only include columns that exist in the dataframe
 edge_testing_data = edge_testing_data[[col for col in training_cols_order if col in edge_testing_data.columns]]
 edge_training_data = edge_training_data[[col for col in training_cols_order if col in edge_training_data.columns]]
@@ -669,9 +749,9 @@ edge_testing_data.to_csv('../data/processed/edge_testing.csv', index=False)
 
 # Save updated edges_drafted_2026.csv with PFF data and without old stats
 # Reorder to match original CSV structure (Round, Pick, Player, Pos, School, Year, then combine metrics, then RAS, then PFF metrics)
-edges_2026_cols_order = ['Round', 'Pick', 'Player', 'Pos', 'School', 'Year', 'Height', 'Weight', 
+edges_2026_cols_order = ['Round', 'Pick', 'Player', 'Pos', 'School', 'Year', 'Height', 'Weight',
                          '40yd', 'Vertical', 'Bench', 'Broad Jump', '3Cone', 'Shuttle',
-                         'RAS', 'true_pass_set_pass_rush_win_rate', 'pass_rush_win_rate', 'snap_counts_pass_rush']
+                         'RAS', 'arm_length_inches', 'true_pass_set_pass_rush_win_rate', 'pass_rush_win_rate', 'snap_counts_pass_rush', 'stop_percent']
 edges_2026_final = edges_2026_processed[[col for col in edges_2026_cols_order if col in edges_2026_processed.columns]]
 edges_2026_final.to_csv('edges_drafted_2026.csv', index=False)
 
@@ -679,3 +759,19 @@ print(f'\nSaved edge_training.csv: {len(edge_training_data)} players (2015-2023)
 print(f'Saved edge_testing.csv: {len(edge_testing_data)} players (2024-2026)')
 print(f'Saved edges_drafted_2026.csv: {len(edges_2026_final)} players (updated with PFF data, old stats removed)')
 print(f'\nColumns in training data: {list(edge_training_data.columns)}')
+
+# Validation: PFF and run defense mapping consistency
+train_pr = edge_training_data['pass_rush_win_rate'].notna().sum()
+train_stop = edge_training_data['stop_percent'].notna().sum()
+test_pr = edge_testing_data['pass_rush_win_rate'].notna().sum()
+test_stop = edge_testing_data['stop_percent'].notna().sum()
+arm_train = edge_training_data['arm_length_inches'].notna().sum()
+arm_test = edge_testing_data['arm_length_inches'].notna().sum()
+arm_2026 = edges_2026_final['arm_length_inches'].notna().sum()
+print(f'\nArm length coverage: Training {arm_train}/{len(edge_training_data)}, Testing {arm_test}/{len(edge_testing_data)}, 2026 {arm_2026}/{len(edges_2026_final)}')
+print(f'\nPFF/Run defense coverage:')
+print(f'  Training: pass_rush_win_rate {train_pr}/{len(edge_training_data)}, stop_percent {train_stop}/{len(edge_training_data)}')
+print(f'  Testing:  pass_rush_win_rate {test_pr}/{len(edge_testing_data)}, stop_percent {test_stop}/{len(edge_testing_data)}')
+# Rows with pass rush but no stop_percent are expected (run defense is ED-only; pass rush includes more)
+inconsistent = ((edge_training_data['pass_rush_win_rate'].notna()) & (edge_training_data['stop_percent'].isna())).sum()
+print(f'  Training: has pass_rush but no stop_percent (expected for some): {inconsistent}')
