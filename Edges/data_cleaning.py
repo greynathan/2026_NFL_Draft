@@ -22,22 +22,29 @@ else:
         print("Warning: No defensive stats files found. Continuing without defensive stats.")
         defensive_stats_data = pd.DataFrame()
 
-# PFF data lives under data/raw/pff/Edges/
-PFF_EDGES_DIR = '../data/raw/pff/Edges'
+# PFF data: pass rush and run defense (2014-2025).
+# - Load ALL positions (no filter). We match to our edge list by Player + School + Year in add_pff_data,
+#   so only edge-list players get PFF stats attached; position is irrelevant for who we match.
+# - When the same player/school/year appears under multiple PFF positions (e.g. ED and LB), we keep one row:
+#   prefer ED > DE > LB > other (so edge designation wins when present).
+PFF_PASS_RUSH_DIR = '../data/raw/pff/Pass_Rush'
+PFF_RUN_DEFENSE_DIR = '../data/raw/pff/Run_Defense'
+POSITION_PRIORITY = {'ED': 0, 'DE': 1, 'LB': 2}  # others get 99 and sort last
 
-# Load and combine PFF edge pass rush data (2014-2025)
+# Load all PFF pass rush data (no position filter)
 pff_files = []
 for year in range(2014, 2026):
-    file_path = os.path.join(PFF_EDGES_DIR, f'{year}_edge_pass_rush_summary.csv')
+    file_path = os.path.join(PFF_PASS_RUSH_DIR, f'{year}_pass_rush_summary.csv')
     if os.path.exists(file_path):
         df = pd.read_csv(file_path)
-        # Extract only the columns we need
-        pff_cols = ['player', 'team_name', 'true_pass_set_pass_rush_win_rate',
+        pff_cols = ['player', 'team_name', 'position', 'true_pass_set_pass_rush_win_rate',
                     'pass_rush_win_rate', 'snap_counts_pass_rush']
-        df_subset = df[pff_cols].copy()
-        # Add Year column (PFF data is for the college season, so year in filename is the season)
+        df_subset = df[[c for c in pff_cols if c in df.columns]].copy()
+        if 'player' not in df_subset.columns or 'true_pass_set_pass_rush_win_rate' not in df_subset.columns:
+            continue
+        if 'position' not in df_subset.columns:
+            df_subset['position'] = None
         df_subset['Year'] = year
-        # Rename columns to match combine data naming
         df_subset = df_subset.rename(columns={
             'player': 'Player',
             'team_name': 'School'
@@ -45,35 +52,44 @@ for year in range(2014, 2026):
         pff_files.append(df_subset)
         print(f'Loaded PFF pass rush for {year}: {len(df_subset)} players')
 
-# Combine all PFF pass rush data
-pff_data = pd.concat(pff_files, ignore_index=True)
-print(f'Total PFF pass rush records: {len(pff_data)}')
+# Combine and dedupe by Player/School/Year (when multiple positions, prefer ED > DE > LB)
+if not pff_files:
+    pff_data = pd.DataFrame(columns=['Player', 'School', 'Year', 'true_pass_set_pass_rush_win_rate',
+                                     'pass_rush_win_rate', 'snap_counts_pass_rush'])
+    print('No PFF pass rush files found; PFF columns will be empty.')
+else:
+    pff_data = pd.concat(pff_files, ignore_index=True)
+    pff_data['_pos_order'] = pff_data['position'].map(POSITION_PRIORITY).fillna(99)
+    pff_data = pff_data.sort_values('_pos_order').drop_duplicates(subset=['Player', 'School', 'Year'], keep='first')
+    pff_data = pff_data.drop(columns=['_pos_order', 'position'], errors='ignore')
+    print(f'Total PFF pass rush records (after dedup): {len(pff_data)}')
 
-# Load and combine PFF edge run defense data (2014-2025) for stop_percent
+# Load all PFF run defense data (no position filter)
 run_defense_files = []
 for year in range(2014, 2026):
-    file_path = os.path.join(PFF_EDGES_DIR, f'{year}_edge_run_defense_summary.csv')
+    file_path = os.path.join(PFF_RUN_DEFENSE_DIR, f'{year}_run_defense_summary.csv')
     if os.path.exists(file_path):
         df = pd.read_csv(file_path)
-        # Keep only edge rushers (ED; DE if present)
-        if 'position' in df.columns:
-            df = df[df['position'].isin(['ED', 'DE'])].copy()
-        run_cols = ['player', 'team_name', 'stop_percent']
+        run_cols = ['player', 'team_name', 'position', 'stop_percent']
         df_subset = df[[c for c in run_cols if c in df.columns]].copy()
         if 'stop_percent' not in df_subset.columns:
             continue
+        if 'position' not in df_subset.columns:
+            df_subset['position'] = None
         df_subset['Year'] = year
         df_subset = df_subset.rename(columns={
             'player': 'Player',
             'team_name': 'School'
         })
         run_defense_files.append(df_subset)
-        print(f'Loaded PFF run defense for {year}: {len(df_subset)} edge players')
+        print(f'Loaded PFF run defense for {year}: {len(df_subset)} players')
 
 if run_defense_files:
     run_defense_data = pd.concat(run_defense_files, ignore_index=True)
     run_defense_data['stop_percent'] = pd.to_numeric(run_defense_data['stop_percent'], errors='coerce')
-    run_defense_data = run_defense_data.drop_duplicates(subset=['Player', 'School', 'Year'], keep='first')
+    run_defense_data['_pos_order'] = run_defense_data['position'].map(POSITION_PRIORITY).fillna(99)
+    run_defense_data = run_defense_data.sort_values('_pos_order').drop_duplicates(subset=['Player', 'School', 'Year'], keep='first')
+    run_defense_data = run_defense_data.drop(columns=['_pos_order', 'position'], errors='ignore')
     # Merge stop_percent into pff_data on Player, School, Year (left merge to keep all pass rush rows)
     pff_data = pff_data.merge(
         run_defense_data[['Player', 'School', 'Year', 'stop_percent']],
@@ -186,6 +202,10 @@ def get_college_stats(combine_df, defensive_stats_df):
         'Boston Col.': 'Boston College',
         'Alabama-Birmingham': 'UAB',
         'Tenn-Chattanooga': 'Chattanooga',
+        'Arizona St.': 'Arizona State',
+        'Michigan St.': 'Michigan State',
+        'Mississippi St.': 'Mississippi State',
+        'West Virginia': 'West Virginia',
     }
 
     def normalize_school(name):
@@ -340,7 +360,7 @@ def add_pff_data(combine_df, pff_df):
             'LOUISIANA TECH': 'Louisiana Tech',
             'OKLA STATE': 'Oklahoma State',
             'OKLAHOMA STATE': 'Oklahoma State',
-            'OKLAHOMA': 'Oklahoma State',  # Some PFF entries just say "OKLAHOMA"
+            'OKLAHOMA': 'Oklahoma',  # University of Oklahoma (OU). Oklahoma State is OKLAHOMA ST / OKLAHOMA STATE
             'NC STATE': 'North Carolina State',
             'NORTH CAROLINA STATE': 'North Carolina State',
             'PENN STATE': 'Penn State',
@@ -351,6 +371,9 @@ def add_pff_data(combine_df, pff_df):
             'APPALACHIAN ST': 'Appalachian State',
             'APPALACHIAN STATE': 'Appalachian State',
             'APP ST': 'Appalachian State',
+            'APP STATE': 'Appalachian State',  # PFF abbreviation
+            'N CAROLINA': 'North Carolina',   # PFF abbreviation
+            'S CAROLINA': 'South Carolina',   # PFF abbreviation
             'FLORIDA ATLANTIC': 'Florida Atlantic',
             'FAU': 'Florida Atlantic',
             'TEXAS SAN ANTONIO': 'Texas-San Antonio',
@@ -359,6 +382,14 @@ def add_pff_data(combine_df, pff_df):
             'TOLEDO': 'Toledo',
             'GA SOUTHRN': 'Georgia Southern',
             'GEORGIA SOUTHERN': 'Georgia Southern',
+            'GA TECH': 'Georgia Tech',
+            'GA STATE': 'Georgia State',
+            'W VIRGINIA': 'West Virginia',
+            'WEST VIRGINIA': 'West Virginia',
+            'WAKE': 'Wake Forest',  # Wake Forest
+            'CAL': 'California',  # California (Berkeley)
+            'CALIFORNIA': 'California',
+            'FLORIDA': 'Florida',
         }
         # Check if exact match exists
         if name in school_mapping:
@@ -406,6 +437,7 @@ def add_pff_data(combine_df, pff_df):
             'Boston College': 'Boston College',  # Handle both formats
             'Alabama-Birmingham': 'UAB',
             'Tenn-Chattanooga': 'Chattanooga',
+            'Miami (Ohio)': 'Miami (OH)',  # match PFF MIAMI OH
             'Washington State': 'Washington State',
             'Colorado State': 'Colorado State',
             'Northwestern': 'Northwestern',
@@ -428,6 +460,13 @@ def add_pff_data(combine_df, pff_df):
             'Ga. Southern': 'Georgia Southern',
             'Kentucky': 'Kentucky',
             'TCU': 'TCU',
+            'Arizona St.': 'Arizona State',
+            'Arizona State': 'Arizona State',
+            'Michigan St.': 'Michigan State',
+            'Michigan State': 'Michigan State',
+            'Mississippi St.': 'Mississippi State',
+            'Mississippi State': 'Mississippi State',
+            'West Virginia': 'West Virginia',
         }
         return school_alias.get(name, name)
     
@@ -462,6 +501,12 @@ def add_pff_data(combine_df, pff_df):
             'JAYSON OWEH': 'ODAFE OWEH',  # Odafe "Jayson" Oweh
             'OWAMAGBE ODIGHIZUWA': 'OWA ODIGHIZUWA',  # Owamagbe "Owa" Odighizuwa
             'OGBONNIA OKORONKWO': 'OGBO OKORONKWO',  # Ogbonnia "Ogbo" Okoronkwo
+            'JOHNNY NEWTON': 'JERZHAN NEWTON',  # Jer'Zhan "Johnny" Newton (DT, Illinois)
+            'DAVON GAUDCHAUX': 'DAVON GODCHAUX',  # common misspelling: Gaudchaux -> Godchaux (LSU DT)
+            'EARNEST BROWN': 'EARNEST BROWN IV',  # PFF uses "Earnest Brown IV" (Northwestern)
+            'ZACHARY CARTER': 'ZACH CARTER',  # PFF uses "Zach Carter" (Florida)
+            'JOSHUA PASCHAL': 'JOSH PASCHAL',  # PFF uses "Josh Paschal" (Kentucky)
+            'AMARÉ BARNO': 'AMARE BARNO',  # PFF uses "Amare Barno" (Virginia Tech)
         }
         player_to_search = player_nickname_map.get(player, player)
         
@@ -539,6 +584,7 @@ def add_ras_data(combine_df, ras_df):
         school_mapping = {
             'Miami (FL)': 'Miami',
             'Miami': 'Miami',
+            'Miami (Ohio)': 'Miami (OH)',
             'Boston Col.': 'Boston College',
             'Boston College': 'Boston College',
             'Southern California': 'USC',
@@ -576,6 +622,19 @@ def add_ras_data(combine_df, ras_df):
             'Texas Christian': 'TCU',  # RAS uses full name
             'Louisiana State': 'LSU',  # RAS uses full name
             'LSU': 'LSU',
+            'San Diego St.': 'San Diego State',
+            'San Diego State': 'San Diego State',
+            'San Jose St.': 'San Jose State',
+            'San Jose State': 'San Jose State',
+            'Kansas St.': 'Kansas State',
+            'Kansas State': 'Kansas State',
+            'Iowa St.': 'Iowa State',
+            'Iowa State': 'Iowa State',
+            'Arizona St.': 'Arizona State',
+            'Arizona State': 'Arizona State',
+            'Mississippi St.': 'Mississippi State',
+            'Mississippi State': 'Mississippi State',
+            'West Virginia': 'West Virginia',
         }
         return school_mapping.get(name, name)
     
@@ -639,6 +698,13 @@ def add_ras_data(combine_df, ras_df):
             'Texas Christian': 'TCU',
             'Louisiana State': 'LSU',
             'LSU': 'LSU',
+            'Arizona St.': 'Arizona State',
+            'Arizona State': 'Arizona State',
+            'Michigan St.': 'Michigan State',
+            'Michigan State': 'Michigan State',
+            'Mississippi St.': 'Mississippi State',
+            'Mississippi State': 'Mississippi State',
+            'West Virginia': 'West Virginia',
         }
         return school_alias.get(name, name)
     
