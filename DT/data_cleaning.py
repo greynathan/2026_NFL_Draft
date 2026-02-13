@@ -94,7 +94,7 @@ if os.path.exists(arm_path):
     arm_length_df = arm_length_df.drop_duplicates(subset=['Player', 'Year'], keep='first')
     arm_length_df = arm_length_df[['Player', 'Year', 'arm_length_inches']].copy()
     arm_length_df['arm_length_inches'] = pd.to_numeric(arm_length_df['arm_length_inches'], errors='coerce')
-    print(f'Arm length DT: {len(arm_length_df)} records')
+    print(f'Arm length DT: {len(arm_length_df)} records ({arm_length_df["arm_length_inches"].notna().sum()} with values)')
 else:
     arm_length_df = pd.DataFrame(columns=['Player', 'Year', 'arm_length_inches'])
     print('No mockdraftable_dt_arm_length.csv; arm_length_inches will be empty.')
@@ -334,11 +334,19 @@ def add_ras_data(combine_df, ras_subset):
 
 
 def add_arm_length(combine_df, arm_df):
+    """
+    Add arm_length_inches by left merge on Player + Year.
+    """
     combine_df = combine_df.drop(columns=['arm_length_inches'], errors='ignore')
     if arm_df.empty or 'arm_length_inches' not in arm_df.columns:
         combine_df['arm_length_inches'] = None
         return combine_df
-    return combine_df.merge(arm_df[['Player', 'Year', 'arm_length_inches']], on=['Player', 'Year'], how='left')
+    out = combine_df.merge(
+        arm_df[['Player', 'Year', 'arm_length_inches']],
+        on=['Player', 'Year'],
+        how='left'
+    )
+    return out
 
 
 # Apply PFF, RAS, arm length
@@ -380,8 +388,19 @@ print(f'\nSaved dt_training.csv: {len(dt_training_data)} (2015-2023)')
 print(f'Saved dt_testing.csv: {len(dt_testing_data)} (2024-2026)')
 print(f'Saved dt_drafted_2026.csv: {len(dt_2026_final)}')
 print(f'Columns: {list(dt_training_data.columns)}')
+
+# Coverage statistics
 train_pr = dt_training_data['pass_rush_win_rate'].notna().sum()
 train_stop = dt_training_data['stop_percent'].notna().sum()
 train_ras = dt_training_data['RAS'].notna().sum()
-print(f'RAS coverage training: {train_ras}/{len(dt_training_data)}')
-print(f'PFF coverage training: pass_rush_win_rate {train_pr}/{len(dt_training_data)}, stop_percent {train_stop}/{len(dt_training_data)}')
+test_pr = dt_testing_data['pass_rush_win_rate'].notna().sum()
+test_stop = dt_testing_data['stop_percent'].notna().sum()
+test_ras = dt_testing_data['RAS'].notna().sum()
+arm_train = dt_training_data['arm_length_inches'].notna().sum()
+arm_test = dt_testing_data['arm_length_inches'].notna().sum()
+
+print(f'\nArm length coverage: Training {arm_train}/{len(dt_training_data)}, Testing {arm_test}/{len(dt_testing_data)}')
+print(f'\nRAS coverage: Training {train_ras}/{len(dt_training_data)}, Testing {test_ras}/{len(dt_testing_data)}')
+print(f'\nPFF coverage:')
+print(f'  Training: pass_rush_win_rate {train_pr}/{len(dt_training_data)}, stop_percent {train_stop}/{len(dt_training_data)}')
+print(f'  Testing: pass_rush_win_rate {test_pr}/{len(dt_testing_data)}, stop_percent {test_stop}/{len(dt_testing_data)}')

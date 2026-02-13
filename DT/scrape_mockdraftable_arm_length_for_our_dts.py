@@ -18,6 +18,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 TRAINING_PATH = os.path.join(DATA_DIR, "processed", "dt_training.csv")
 TESTING_PATH = os.path.join(DATA_DIR, "processed", "dt_testing.csv")
+DRAFTED_2026_PATH = os.path.join(SCRIPT_DIR, "dt_drafted_2026.csv")
 OUTPUT_PATH = os.path.join(DATA_DIR, "raw", "mockdraftable_dt_arm_length.csv")
 
 
@@ -87,13 +88,22 @@ def main():
     import pandas as pd
     train = pd.read_csv(TRAINING_PATH)
     test = pd.read_csv(TESTING_PATH)
+    # Also include 2026 drafted players
+    dfs_to_combine = [train[["Player", "Year", "School"]], test[["Player", "Year", "School"]]]
+    if os.path.exists(DRAFTED_2026_PATH):
+        drafted_2026 = pd.read_csv(DRAFTED_2026_PATH)
+        if "Player" in drafted_2026.columns and "Year" in drafted_2026.columns:
+            # School might be in different column name
+            school_col = "School" if "School" in drafted_2026.columns else None
+            if school_col:
+                dfs_to_combine.append(drafted_2026[["Player", "Year", school_col]].rename(columns={school_col: "School"}))
+            else:
+                drafted_2026["School"] = ""
+                dfs_to_combine.append(drafted_2026[["Player", "Year", "School"]])
     # Unique (Player, Year, School)
-    combined = pd.concat([
-        train[["Player", "Year", "School"]],
-        test[["Player", "Year", "School"]],
-    ], ignore_index=True).drop_duplicates()
+    combined = pd.concat(dfs_to_combine, ignore_index=True).drop_duplicates()
     players = list(combined.itertuples(index=False, name=None))  # (Player, Year, School)[]
-    print(f"Loaded {len(players)} unique players from dt_training + dt_testing.")
+    print(f"Loaded {len(players)} unique players from dt_training + dt_testing + dt_drafted_2026.")
 
     rows = []
     for i, (player_name, year, school) in enumerate(players):
