@@ -174,6 +174,7 @@ def normalize_pff_school(name):
         'WYOMING': 'Wyoming', 'UNLV': 'UNLV', 'S DIEGO ST': 'San Diego State', 'S JOSE ST': 'San Jose State',
         'GA TECH': 'Georgia Tech', 'GA STATE': 'Georgia State',
         'W VIRGINIA': 'West Virginia', 'WEST VIRGINIA': 'West Virginia',
+        'WAKE': 'Wake Forest', 'CAL': 'California',
     }
     return mapping.get(name, name.title())
 
@@ -196,11 +197,12 @@ def normalize_combine_school(name):
         'San Jose St.': 'San Jose State', 'San Jose State': 'San Jose State',
         'Boston Col.': 'Boston College', 'Boston College': 'Boston College',
         'Alabama-Birmingham': 'UAB', 'Tenn-Chattanooga': 'Chattanooga', 'Miami (Ohio)': 'Miami (OH)',
-        'Washington State': 'Washington State', 'Colorado State': 'Colorado State',
+        'Washington State': 'Washington State', 'Washington St.': 'Washington State', 'Colorado State': 'Colorado State',
         'Northwestern': 'Northwestern', 'LSU': 'LSU', 'Virginia Tech': 'Virginia Tech',
         'Texas State': 'Texas State', 'Louisiana Tech': 'Louisiana Tech',
-        'North Carolina State': 'North Carolina State', 'NC State': 'North Carolina State',
+        'North Carolina State': 'North Carolina State', 'NC State': 'North Carolina State', 'North Carolina St.': 'North Carolina State',
         'Appalachian State': 'Appalachian State', 'Appalachian St.': 'Appalachian State', 'App St.': 'Appalachian State',
+        'Oregon St.': 'Oregon State', 'Oregon State': 'Oregon State',
         'Florida Atlantic': 'Florida Atlantic', 'Texas-San Antonio': 'Texas-San Antonio', 'UTSA': 'Texas-San Antonio',
         'Toledo': 'Toledo', 'Georgia Southern': 'Georgia Southern', 'Ga. Southern': 'Georgia Southern',
         'Kentucky': 'Kentucky', 'TCU': 'TCU',
@@ -309,11 +311,19 @@ def add_ras_data(combine_df, ras_subset):
         'Mississippi St.': 'Mississippi State', 'Mississippi State': 'Mississippi State',
         'West Virginia': 'West Virginia',
         'Georgia Tech': 'Georgia Tech', 'North Carolina': 'North Carolina', 'South Carolina': 'South Carolina',
+        'Montana St.': 'Montana State', 'Montana State': 'Montana State',
+        'Oregon St.': 'Oregon State', 'Oregon State': 'Oregon State',
+        'Washington St.': 'Washington State', 'North Carolina St.': 'North Carolina State',
+        'Ala-Birmingham': 'UAB', 'Texas AM': 'Texas A&M',
     }
     ras_n['College_n'] = ras_n['College'].apply(lambda x: ras_school.get(str(x).strip(), str(x).strip()) if pd.notna(x) else x)
 
-    # Combine may have different spelling than RAS (e.g. Gaudchaux vs Godchaux)
-    ras_name_alias = {'DAVON GAUDCHAUX': 'DAVON GODCHAUX'}
+    # Combine may have different spelling than RAS (e.g. Gaudchaux vs Godchaux); nickname/full name
+    ras_name_alias = {
+        'DAVON GAUDCHAUX': 'DAVON GODCHAUX',
+        'FOLEY FATUKASI': 'FOLORUNSO FATUKASI',   # Foley is nickname for Folorunso
+        'CHRISTOPHER HINTON': 'CHRIS HINTON',    # Christopher -> Chris in RAS
+    }
 
     def lookup_ras(row):
         player = normalize_player_name(row['Player'])

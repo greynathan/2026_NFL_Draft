@@ -84,7 +84,7 @@ Year,Player,Pos,School,Height,Weight,40yd,Vertical,Bench,Broad Jump,3Cone,Shuttl
 2017,DeMarcus Walker,DE,Florida State,6-4,280.0,,,18.0,,,,True,2.0,51.0,3.19,33.0,24.0,15.7,455.0,8.0
 2017,Jordan Willis,DE,Kansas State,6-4,255.0,4.53,39.0,24.0,125.0,6.85,4.28,True,3.0,73.0,9.88,33.5,28.6,17.4,524.0,5.4
 2018,Kemoko Turay,EDGE,Rutgers,6-5,253.0,4.65,,,,,,True,2.0,52.0,8.27,33.38,23.4,14.7,228.0,8.6
-2018,Ola Adeniyi,EDGE,Toledo,6-2,248.0,4.83,31.5,26.0,,7.21,4.28,False,,,,31.75,,,,
+2018,Ola Adeniyi,EDGE,Toledo,6-2,248.0,4.83,31.5,26.0,,7.21,4.28,False,,,5.66,31.75,,,,
 2018,Dorance Armstrong,EDGE,Kansas,6-4,257.0,4.87,30.0,20.0,118.0,7.12,4.23,True,4.0,116.0,5.91,34.75,6.6,6.4,376.0,10.6
 2018,Ade Aruna,DE,Tulane,6-6,262.0,4.6,38.5,18.0,128.0,7.53,4.48,True,6.0,218.0,8.61,34.0,6.9,3.9,290.0,5.1
 2018,Davin Bellamy,EDGE,Georgia,6-5,255.0,,,15.0,,,,False,,,0.52,33.25,18.0,10.3,265.0,5.0
@@ -115,7 +115,7 @@ Year,Player,Pos,School,Height,Weight,40yd,Vertical,Bench,Broad Jump,3Cone,Shuttl
 2018,Uchenna Nwosu,EDGE,USC,6-3,251.0,4.65,32.0,20.0,119.0,,,True,2.0,48.0,,33.62,19.3,12.0,449.0,4.9
 2018,Ogbonnia Okoronkwo,EDGE,Oklahoma,6-1,253.0,4.77,38.0,27.0,121.0,,,True,5.0,160.0,8.72,33.75,27.0,13.8,373.0,8.0
 2018,Javon Rolland-Jones,EDGE,Arkansas State,6-2,253.0,4.88,,23.0,,,,False,,,1.72,32.75,,,,
-2018,Olubunmi Rotimi,DE,Old Dominion,6-4,273.0,,32.0,21.0,113.0,7.46,4.7,False,,,,34.88,,,,
+2018,Olubunmi Rotimi,DE,Old Dominion,6-4,273.0,,32.0,21.0,113.0,7.46,4.7,False,,,2.3,34.88,,,,
 2018,Kentavius Street,DE,North Carolina State,6-2,280.0,4.87,,28.0,,,,True,4.0,128.0,7.72,32.88,13.3,7.1,309.0,4.9
 2018,Josh Sweat,EDGE,Florida State,6-4,251.0,4.53,39.5,,124.0,,4.28,True,4.0,130.0,9.7,34.62,10.9,9.4,375.0,8.1
 2018,Chad Thomas,DE,Miami (FL),6-6,281.0,4.92,29.0,,116.0,,,True,3.0,67.0,4.55,33.5,19.4,14.8,335.0,6.2
@@ -166,7 +166,7 @@ Year,Player,Pos,School,Height,Weight,40yd,Vertical,Bench,Broad Jump,3Cone,Shuttl
 2021,Shaka Toney,DE,Penn St.,6-2,242.0,4.51,39.0,24.0,128.0,6.95,4.28,True,7.0,246.0,9.48,33.0,19.2,14.3,201.0,7.1
 2021,Devon Wharton,DE,Western Kentucky,6-2,215.0,5.1,30.5,4.0,115.0,8.12,4.7,False,,,,,,,,
 2022,Christopher Allen,EDGE,Alabama,6-4,241.0,,,,,,,False,,,,33.0,33.3,33.3,3.0,20.0
-2022,Amaré Barno,EDGE,Virginia Tech,6-5,246.0,4.36,37.0,,131.0,,4.45,True,6.0,189.0,,34.0,11.8,7.4,282.0,6.2
+2022,Amaré Barno,EDGE,Virginia Tech,6-5,246.0,4.36,37.0,,131.0,,4.45,True,6.0,189.0,9.18,34.0,11.8,7.4,282.0,6.2
 2022,Nik Bonitto,EDGE,Oklahoma,6-3,248.0,4.54,35.5,,120.0,7.07,4.23,True,2.0,64.0,9.36,32.5,25.3,23.8,263.0,8.3
 2022,Zachary Carter,DE,Florida,6-4,282.0,4.99,27.5,19.0,110.0,,,True,3.0,95.0,,33.5,14.0,10.4,347.0,4.0
 2022,Micheal Clemons,DE,Texas A&M,6-5,263.0,,,24.0,116.0,,,True,4.0,117.0,8.2,34.88,22.7,14.1,328.0,4.7
@@ -183,7 +183,7 @@ Year,Player,Pos,School,Height,Weight,40yd,Vertical,Bench,Broad Jump,3Cone,Shuttl
 2022,DeAngelo Malone,EDGE,Western Kentucky,6-3,243.0,,,23.0,,,,True,3.0,82.0,9.06,33.12,,,,
 2022,David Ojabo,EDGE,Michigan,6-4,250.0,4.55,35.0,,122.0,,4.45,True,2.0,45.0,9.39,33.5,22.1,15.1,297.0,7.0
 2022,Esezi Otomewo,DE,Minnesota,6-5,282.0,,,,,,,True,5.0,165.0,6.64,34.5,17.8,11.4,307.0,7.8
-2022,Joshua Paschal,DE,Kentucky,6-3,268.0,4.77,37.5,,123.0,,,True,2.0,46.0,,,24.8,15.4,389.0,12.4
+2022,Joshua Paschal,DE,Kentucky,6-3,268.0,4.77,37.5,,123.0,,,True,2.0,46.0,9.7,,24.8,15.4,389.0,12.4
 2022,Dominique Robinson,EDGE,Miami (Ohio),6-5,253.0,4.72,41.0,25.0,121.0,,,True,5.0,174.0,,33.25,18.5,11.7,248.0,6.4
 2022,Myjai Sanders,EDGE,Cincinnati,6-5,228.0,4.67,33.0,,120.0,,4.37,True,3.0,100.0,8.74,32.62,26.6,17.5,389.0,5.6
 2022,Tyreke Smith,EDGE,Ohio St.,6-3,254.0,4.86,34.0,,117.0,,,True,5.0,158.0,7.14,33.25,31.6,17.7,259.0,2.4

@@ -439,6 +439,7 @@ def add_pff_data(combine_df, pff_df):
             'Tenn-Chattanooga': 'Chattanooga',
             'Miami (Ohio)': 'Miami (OH)',  # match PFF MIAMI OH
             'Washington State': 'Washington State',
+            'Washington St.': 'Washington State',
             'Colorado State': 'Colorado State',
             'Northwestern': 'Northwestern',
             'LSU': 'LSU',
@@ -449,9 +450,12 @@ def add_pff_data(combine_df, pff_df):
             'Oklahoma St.': 'Oklahoma State',
             'North Carolina State': 'North Carolina State',
             'NC State': 'North Carolina State',
+            'North Carolina St.': 'North Carolina State',
             'Appalachian State': 'Appalachian State',
             'Appalachian St.': 'Appalachian State',
             'App St.': 'Appalachian State',
+            'Oregon St.': 'Oregon State',
+            'Oregon State': 'Oregon State',
             'Florida Atlantic': 'Florida Atlantic',
             'Texas-San Antonio': 'Texas-San Antonio',
             'UTSA': 'Texas-San Antonio',
@@ -507,6 +511,8 @@ def add_pff_data(combine_df, pff_df):
             'ZACHARY CARTER': 'ZACH CARTER',  # PFF uses "Zach Carter" (Florida)
             'JOSHUA PASCHAL': 'JOSH PASCHAL',  # PFF uses "Josh Paschal" (Kentucky)
             'AMARÉ BARNO': 'AMARE BARNO',  # PFF uses "Amare Barno" (Virginia Tech)
+            'TAKKARIST MCKINLEY': 'TAKK MCKINLEY',  # PFF uses "Takk McKinley" (UCLA)
+            'JOE TRYON': 'JOE TRYONSHOYINKA',  # PFF uses "Joe Tryon-Shoyinka" (Washington)
         }
         player_to_search = player_nickname_map.get(player, player)
         
@@ -635,6 +641,9 @@ def add_ras_data(combine_df, ras_df):
             'Mississippi St.': 'Mississippi State',
             'Mississippi State': 'Mississippi State',
             'West Virginia': 'West Virginia',
+            'Washington St.': 'Washington State', 'North Carolina St.': 'North Carolina State',
+            'Oregon St.': 'Oregon State', 'Oregon State': 'Oregon State',
+            'Texas AM': 'Texas A&M',
         }
         return school_mapping.get(name, name)
     
@@ -720,6 +729,10 @@ def add_ras_data(combine_df, ras_df):
         'JAYSON OWEH': 'ODAFE OWEH',
         'OWAMAGBE ODIGHIZUWA': 'OWA ODIGHIZUWA',
         'OGBONNIA OKORONKWO': 'OGBO OKORONKWO',
+        'OLA ADENIYI': 'OLASUNKANMI ADENIYI',      # Ola is short for Olasunkanmi
+        'OLUBUNMI ROTIMI': 'BUNMI ROTIMI',         # Bunmi is short for Olubunmi
+        'AMARÉ BARNO': 'AMARE BARNO',              # accent spelling in RAS
+        'JOSHUA PASCHAL': 'JOSH PASCHAL',          # Joshua -> Josh in RAS
     }
     
     def lookup_ras(row):
