@@ -390,17 +390,25 @@ def add_ras_data(combine_df, ras_subset):
 def add_arm_length(combine_df, arm_df):
     """
     Add arm_length_inches by left merge on Player + Year.
+    Falls back to any pre-existing arm_length_inches value (e.g. from official combine).
     """
     combine_df = combine_df.copy()
-    combine_df = combine_df.drop(columns=['arm_length_inches'], errors='ignore')
+    has_existing = 'arm_length_inches' in combine_df.columns
+    if has_existing:
+        combine_df = combine_df.rename(columns={'arm_length_inches': '_arm_backup'})
     if arm_df.empty or 'arm_length_inches' not in arm_df.columns:
-        combine_df['arm_length_inches'] = None
+        combine_df['arm_length_inches'] = combine_df['_arm_backup'] if has_existing else None
+        if has_existing:
+            combine_df = combine_df.drop(columns=['_arm_backup'])
         return combine_df
     combine_df = combine_df.merge(
         arm_df[['Player', 'Year', 'arm_length_inches']],
         on=['Player', 'Year'],
         how='left'
     )
+    if has_existing:
+        combine_df['arm_length_inches'] = combine_df['arm_length_inches'].fillna(combine_df['_arm_backup'])
+        combine_df = combine_df.drop(columns=['_arm_backup'])
     return combine_df
 
 
