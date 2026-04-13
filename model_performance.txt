@@ -1,0 +1,237 @@
+NFL Draft Round Regression – Model Performance
+============================================================
+Ridge Regression (alpha=1.0) | KNNImputer (k=10) | StandardScaler
+Target: round 1–7 if drafted, 8 if undrafted
+Train: 2015–2023 | Holdout: 2024 and 2025 drafted players
+
+
+============================================================
+CB – Corner Back
+============================================================
+Features (21): Broad Jump, Vertical, 40yd, Height, Weight, speed_score, explosive_score, RAS, missed_tackle_rate, forced_fumbles, yards_per_coverage_snap, forced_incompletion_rate, snap_counts_coverage, coverage_percent, coverage_snaps_per_target, INT_rate, PBU_rate, qb_rating_against, catch_rate, avg_depth_of_target, p4_conference
+
+Training set (2015–2023):
+  n=312  MAE=1.8490  RMSE=2.1877  R²=0.2744
+
+2024 holdout:
+  n=36  MAE=1.3478  RMSE=1.6884  R²=0.3288  Exact=25.0%  Within-1=55.6%
+
+2025 holdout:
+  n=19  MAE=1.6654  RMSE=1.8820  R²=-0.3264  Exact=5.3%  Within-1=52.6%
+
+Top 5 features by |coefficient|:
+  40yd                                      +0.8506
+  RAS                                       -0.7290
+  speed_score                               +0.5883
+  qb_rating_against                         +0.5720
+  Weight                                    -0.3703
+
+============================================================
+S – Safety
+============================================================
+Features (28): Broad Jump, Vertical, 40yd, Height, Weight, speed_score, explosive_score, RAS, arm_length_inches, true_pass_set_pass_rush_win_rate, pass_rush_win_rate, snap_counts_pass_rush, stop_percent, missed_tackle_rate, avg_depth_of_tackle, snap_counts_run, forced_fumbles, yards_per_coverage_snap, forced_incompletion_rate, snap_counts_coverage, coverage_percent, coverage_snaps_per_target, INT_rate, PBU_rate, qb_rating_against, catch_rate, avg_depth_of_target, p4_conference
+
+Training set (2015–2023):
+  n=191  MAE=1.4962  RMSE=1.8628  R²=0.4259
+
+2024 holdout:
+  n=21  MAE=1.7849  RMSE=2.1014  R²=-0.4091  Exact=14.3%  Within-1=38.1%
+
+2025 holdout:
+  n=17  MAE=1.6286  RMSE=2.1025  R²=-0.4718  Exact=17.6%  Within-1=64.7%
+
+Top 5 features by |coefficient|:
+  qb_rating_against                         +0.6653
+  speed_score                               -0.3855
+  explosive_score                           -0.3682
+  40yd                                      +0.3422
+  pass_rush_win_rate                        -0.2921
+
+============================================================
+LB – Linebacker
+============================================================
+Features (27): Broad Jump, Vertical, 40yd, Height, Weight, speed_score, explosive_score, RAS, arm_length_inches, true_pass_set_pass_rush_win_rate, pass_rush_win_rate, snap_counts_pass_rush, stop_percent, missed_tackle_rate, avg_depth_of_tackle, snap_counts_run, forced_fumbles, yards_per_coverage_snap, forced_incompletion_rate, snap_counts_coverage, coverage_percent, interceptions, pass_break_ups, coverage_snaps_per_target, INT_rate, PBU_rate, p4_conference
+
+Training set (2015–2023):
+  n=327  MAE=1.5826  RMSE=1.9056  R²=0.4171
+
+2024 holdout:
+  n=14  MAE=1.5407  RMSE=1.7596  R²=0.0915  Exact=14.3%  Within-1=57.1%
+
+2025 holdout:
+  n=21  MAE=1.4444  RMSE=1.7343  R²=-0.0411  Exact=14.3%  Within-1=57.1%
+
+Top 5 features by |coefficient|:
+  snap_counts_pass_rush                     -0.9936
+  coverage_percent                          -0.8487
+  speed_score                               -0.6971
+  explosive_score                           -0.6930
+  arm_length_inches                         -0.4608
+
+============================================================
+ED – Edge Rusher
+============================================================
+Features (14): Broad Jump, Vertical, 40yd, Height, Weight, speed_score, explosive_score, RAS, arm_length_inches, true_pass_set_pass_rush_win_rate, pass_rush_win_rate, snap_counts_pass_rush, stop_percent, p4_conference
+
+Training set (2015–2023):
+  n=240  MAE=1.5434  RMSE=1.9127  R²=0.4668
+
+2024 holdout:
+  n=18  MAE=1.0622  RMSE=1.2506  R²=0.6588  Exact=22.2%  Within-1=72.2%
+
+2025 holdout:
+  n=14  MAE=1.2085  RMSE=1.4810  R²=-1.6215  Exact=14.3%  Within-1=78.6%
+
+Top 5 features by |coefficient|:
+  pass_rush_win_rate                        -0.9499
+  Broad Jump                                -0.8462
+  snap_counts_pass_rush                     -0.6916
+  Weight                                    -0.6268
+  explosive_score                           +0.5975
+
+============================================================
+DT – Defensive Tackle
+============================================================
+Features (14): Broad Jump, Vertical, 40yd, Height, Weight, speed_score, explosive_score, RAS, arm_length_inches, true_pass_set_pass_rush_win_rate, pass_rush_win_rate, snap_counts_pass_rush, stop_percent, p4_conference
+
+Training set (2015–2023):
+  n=154  MAE=1.3618  RMSE=1.6417  R²=0.5579
+
+2024 holdout:
+  n=13  MAE=1.2326  RMSE=1.5328  R²=0.2214  Exact=30.8%  Within-1=69.2%
+
+2025 holdout:
+  n=11  MAE=1.7266  RMSE=2.0371  R²=-4.1238  Exact=9.1%  Within-1=36.4%
+
+Top 5 features by |coefficient|:
+  pass_rush_win_rate                        -1.0183
+  snap_counts_pass_rush                     -1.0001
+  speed_score                               -0.9721
+  Weight                                    -0.6133
+  true_pass_set_pass_rush_win_rate          +0.5207
+
+============================================================
+OT – Offensive Tackle
+============================================================
+Features (16): Height, Weight, arm_length_inches, arm_33_plus, arm_34_plus, speed_score, agility_score, true_pass_set_pressure_rate, true_pass_set_sack_rate, snap_counts_pass_block, snap_counts_run_block, grades_run_block, gap_rate, zone_rate, penalty_rate, p4_conference
+
+Training set (2015–2023):
+  n=190  MAE=1.7819  RMSE=2.1156  R²=0.3402
+
+2024 holdout:
+  n=28  MAE=2.0365  RMSE=2.2827  R²=0.0749  Exact=3.6%  Within-1=32.1%
+
+2025 holdout:
+  n=18  MAE=1.4094  RMSE=1.8209  R²=0.3684  Exact=27.8%  Within-1=55.6%
+
+Top 5 features by |coefficient|:
+  grades_run_block                          -0.6992
+  true_pass_set_pressure_rate               +0.6968
+  speed_score                               -0.5922
+  agility_score                             -0.4971
+  snap_counts_run_block                     +0.4122
+
+============================================================
+IOL – Interior Offensive Lineman
+============================================================
+Features (15): Height, Weight, arm_length_inches, speed_score, RAS, is_center, true_pass_set_pressure_rate, true_pass_set_sack_rate, snap_counts_pass_block, snap_counts_run_block, grades_run_block, gap_rate, zone_rate, penalty_rate, p4_conference
+
+Training set (2015–2023):
+  n=161  MAE=1.8941  RMSE=2.1996  R²=0.2051
+
+2024 holdout:
+  n=22  MAE=1.5401  RMSE=1.8848  R²=-0.0882  Exact=27.3%  Within-1=50.0%
+
+2025 holdout:
+  n=12  MAE=2.0633  RMSE=2.6763  R²=-0.4820  Exact=8.3%  Within-1=41.7%
+
+Top 5 features by |coefficient|:
+  speed_score                               -0.6890
+  grades_run_block                          -0.6637
+  true_pass_set_pressure_rate               +0.3877
+  p4_conference                             -0.3177
+  gap_rate                                  +0.2495
+
+============================================================
+QB – Quarterback
+============================================================
+Features (16): Height, Weight, 40yd, speed_score, RAS, btt_rate, twp_rate, ypa, qb_rating, pressure_to_sack_rate, sack_percent, epa, positive_epa_percent, avg_depth_of_target, player_game_count, p4_conference
+
+Training set (2015–2023):
+  n=148  MAE=1.8817  RMSE=2.2390  R²=0.3382
+
+2024 holdout:
+  n=11  MAE=1.4527  RMSE=1.7537  R²=0.5911  Exact=27.3%  Within-1=54.5%
+
+2025 holdout:
+  n=11  MAE=2.1440  RMSE=2.4908  R²=-0.5447  Exact=0.0%  Within-1=36.4%
+
+Top 5 features by |coefficient|:
+  epa                                       -1.0651
+  sack_percent                              -0.8605
+  RAS                                       -0.6451
+  pressure_to_sack_rate                     +0.6047
+  ypa                                       +0.5872
+
+============================================================
+WR – Wide Receiver
+============================================================
+Features (24): Height, Weight, 40yd, Vertical, Broad Jump, speed_score, explosive_score, RAS, arm_length_inches, yprr, yards_per_reception, caught_percent, avg_depth_of_target, targeted_qb_rating, contested_catch_rate, drop_rate, yards_after_catch_per_reception, avoided_tackles, slot_rate, wide_rate, inline_rate, route_rate, player_game_count, p4_conference
+
+Training set (2015–2023):
+  n=444  MAE=1.4604  RMSE=1.8586  R²=0.4649
+
+2024 holdout:
+  n=35  MAE=1.5609  RMSE=1.9421  R²=0.1998  Exact=20.0%  Within-1=54.3%
+
+2025 holdout:
+  n=28  MAE=1.3821  RMSE=1.6822  R²=0.2283  Exact=25.0%  Within-1=57.1%
+
+Top 5 features by |coefficient|:
+  slot_rate                                 +1.0608
+  wide_rate                                 +1.0466
+  yprr                                      -0.9801
+  40yd                                      +0.6529
+  caught_percent                            +0.5310
+
+============================================================
+TE – Tight End
+============================================================
+Features (25): Height, Weight, 40yd, Vertical, Broad Jump, speed_score, explosive_score, RAS, arm_length_inches, yprr, yards_per_reception, caught_percent, avg_depth_of_target, targeted_qb_rating, contested_catch_rate, drop_rate, yards_after_catch_per_reception, avoided_tackles, slot_rate, wide_rate, inline_rate, route_rate, grades_run_block, player_game_count, p4_conference
+
+Training set (2015–2023):
+  n=181  MAE=1.5402  RMSE=1.8163  R²=0.4106
+
+2024 holdout:
+  n=12  MAE=1.5555  RMSE=1.8393  R²=0.0017  Exact=25.0%  Within-1=41.7%
+
+2025 holdout:
+  n=14  MAE=1.4885  RMSE=1.7412  R²=0.3026  Exact=7.1%  Within-1=50.0%
+
+Top 5 features by |coefficient|:
+  speed_score                               -2.2747
+  40yd                                      -1.9314
+  RAS                                       -0.6635
+  yprr                                      -0.5905
+  player_game_count                         -0.4624
+
+============================================================
+RB – Running Back
+============================================================
+Features (16): Weight, 40yd, Vertical, Bench, Broad Jump, RAS, yards_after_contact, yco_attempt, ypa, elusive_rating, mtf_per_attempt, breakaway_percent, explosive_rate, yprr, targets_per_route, fumble_rate
+
+Training set (2015–2023):
+  n=275  MAE=1.2772  RMSE=1.6217  R²=0.5197
+
+2024 holdout:
+  n=18  MAE=1.4220  RMSE=1.7349  R²=-0.4599  Exact=16.7%  Within-1=55.6%
+
+2025 holdout:
+  n=23  MAE=1.2195  RMSE=1.4520  R²=0.4344  Exact=26.1%  Within-1=69.6%
+
+Top 5 features by |coefficient|:
+  yards_after_contact                       -0.9212
+  yco_attempt                               +0.8091
+  Weight                                    -0.7779
+  ypa                                       -0.7484
+  40yd                                      +0.7265

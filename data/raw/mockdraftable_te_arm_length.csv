@@ -1,0 +1,332 @@
+Player,Year,School,arm_length_inches
+Rory Anderson,2015,South Carolina,
+Blake Bell,2015,Oklahoma,33.12
+E.J. Bibbs,2015,Iowa State,31.12
+Nick Boyle,2015,Pittsburgh,33.38
+Gerald Christian,2015,Louisville,32.5
+AJ Derby,2015,Arkansas,30.5
+Jeff Heuerman,2015,Ohio State,33.25
+Jesse James,2015,Penn State,33.0
+Ben Koyack,2015,Notre Dame,32.62
+Tyler Kroft,2015,Rutgers,33.0
+Nick O'Leary,2015,Florida State,29.75
+MyCole Pruitt,2015,Southern Illinois,33.5
+Wes Saxton,2015,South Alabama,32.0
+Jean Sifrin,2015,Massachusetts,33.38
+Randall Telfer,2015,USC,33.5
+Eric Tomlinson,2015,Texas-El Paso,32.88
+Clive Walford,2015,Miami (FL),34.0
+Maxx Williams,2015,Minnesota,33.5
+Jerell Adams,2016,South Carolina,34.38
+Stephen Anderson,2016,California,32.0
+Ben Braunecker,2016,Harvard,32.75
+Thomas Duarte,2016,UCLA,33.0
+David Grinnage,2016,North Carolina State,34.5
+Temarrick Hemingway,2016,South Carolina State,34.0
+Hunter Henry,2016,Arkansas,32.75
+Tyler Higbee,2016,Western Kentucky,33.25
+Austin Hooper,2016,Stanford,33.75
+Ryan Malleck,2016,Virginia Tech,32.5
+Jake McGee,2016,Florida,32.38
+David Morgan,2016,Texas-San Antonio,33.62
+Beau Sandland,2016,Montana State,34.25
+Nick Vannett,2016,Ohio State,34.25
+Bryce Williams,2016,East Carolina,33.62
+Billy Brown,2017,Shepherd,33.0
+Pharaoh Brown,2017,Oregon,35.62
+Jake Butt,2017,Michigan,32.0
+Cethan Carter,2017,Nebraska,32.38
+Darrell Daniels,2017,Washington,34.5
+Evan Engram,2017,Mississippi,33.5
+Gerald Everett,2017,South Alabama,33.0
+Cole Hikutini,2017,Louisville,32.75
+Bucky Hodges,2017,Virginia Tech,32.5
+O.J. Howard,2017,Alabama,33.75
+George Kittle,2017,Iowa,33.12
+Jordan Leggett,2017,Clemson,33.5
+David Njoku,2017,Miami (FL),35.25
+Scott Orndoff,2017,Pittsburgh,33.25
+Hayden Plinke,2017,Texas-El Paso,32.5
+Michael Roberts,2017,Toledo,33.25
+Eric Saubert,2017,Drake,33.5
+Adam Shaheen,2017,Ashland,33.5
+Jonnu Smith,2017,Florida International,32.88
+Jeremy Sprinkle,2017,Arkansas,34.5
+Jordan Akins,2018,Central Florida,33.5
+Mark Andrews,2018,Oklahoma,32.5
+Marcus Baugh,2018,Ohio State,33.5
+Tyler Conklin,2018,Central Michigan,33.0
+Will Dissly,2018,Washington,33.25
+Troy Fumagalli,2018,Wisconsin,32.0
+Mike Gesicki,2018,Penn State,34.12
+Dallas Goedert,2018,South Dakota State,34.0
+Chris Herndon,2018,Miami (FL),32.88
+Hayden Hurst,2018,South Carolina,32.75
+Ryan Izzo,2018,Florida State,32.12
+Jaylen Samuels,2018,North Carolina State,31.38
+Dalton Schultz,2018,Stanford,31.25
+Durham Smythe,2018,Notre Dame,31.75
+Ian Thomas,2018,Indiana,32.5
+Jordan Thomas,2018,Mississippi State,34.12
+David Wells,2018,San Diego State,32.25
+Kendall Blanton,2019,Missouri,33.75
+Keenen Brown,2019,Texas State,34.5
+C.J. Conrad,2019,Kentucky,31.0
+Noah Fant,2019,Iowa,33.5
+Zach Gentry,2019,Michigan,34.12
+Daniel Helm,2019,Duke,33.38
+T.J. Hockenson,2019,Iowa,32.25
+Dawson Knox,2019,Mississippi,33.5
+Alize Mack,2019,Notre Dame,33.75
+Foster Moreau,2019,LSU,33.5
+Isaac Nauta,2019,Georgia,31.88
+Josh Oliver,2019,San Jose State,33.5
+Dax Raymond,2019,Utah State,32.62
+Drew Sample,2019,Washington,33.38
+Irv Smith,2019,Alabama,31.5
+Kaden Smith,2019,Stanford,32.25
+Jace Sternberger,2019,Texas A&M,32.12
+Tommy Sweeney,2019,Boston Col.,32.75
+Kahale Warring,2019,San Diego State,32.75
+Trevon Wesco,2019,West Virginia,34.75
+Caleb Wilson,2019,UCLA,33.0
+Devin Asiasi,2020,UCLA,33.25
+Jacob Breeland,2020,Oregon,32.62
+Harrison Bryant,2020,Florida Atlantic,30.62
+Hunter Bryant,2020,Washington,32.0
+Josiah Deguara,2020,Cincinnati,31.62
+Brycen Hopkins,2020,Purdue,32.12
+Dalton Keene,2020,Virginia Tech,32.25
+Cole Kmet,2020,Notre Dame,33.0
+Sean McKeon,2020,Michigan,33.5
+Thaddeus Moss,2020,LSU,31.88
+C.J. O'Grady,2020,Arkansas,33.62
+Albert Okwuegbunam,2020,Missouri,34.12
+Colby Parkinson,2020,Stanford,33.25
+Jared Pinkney,2020,Vanderbilt,32.88
+Stephen Sullivan,2020,LSU,35.38
+Charlie Taumoepeau,2020,Portland State,32.25
+Adam Trautman,2020,Dayton,32.62
+Mitchell Wilcox,2020,South Florida,32.25
+Charlie Woerner,2020,Georgia,31.12
+Dom Wood-Anderson,2020,Tennessee,33.12
+Giles Amos,2021,Arkansas St.,32.88
+John Bates,2021,Boise St.,32.5
+Shaun Beyer,2021,Iowa,33.25
+J.C. Chalk,2021,Clemson,32.5
+Daniel Crawford,2021,Northern Illinois,32.62
+Zach Davidson,2021,Central Missouri St.,32.0
+Luke Farrell,2021,Ohio St.,33.0
+Miller Forristall,2021,Alabama,33.0
+Pat Freiermuth,2021,Penn St.,32.5
+Noah Gray,2021,Duke,31.62
+Scooter Harrington,2021,Stanford,34.75
+Jake Hausmann,2021,Ohio St.,
+Brevin Jordan,2021,Miami (FL),32.88
+Hunter Kampmoyer,2021,Oregon,31.38
+Bruno Labelle,2021,Cincinnati,
+Artayvious Lynn,2021,TCU,33.62
+Ben Mason,2021,Michigan,32.62
+Tre' McKitty,2021,Georgia,32.75
+Briley Moore,2021,Kansas St.,31.0
+Quintin Morris,2021,Bowling Green,33.12
+Josh Pederson,2021,La-Monroe,
+Kyle Pitts,2021,Florida,33.5
+John Raine,2021,Northwestern,31.38
+Jack Stoll,2021,Nebraska,33.12
+Tommy Tremble,2021,Notre Dame,31.88
+Carl Tucker,2021,Alabama,33.12
+Pro Wells,2021,TCU,33.0
+Brock Wright,2021,Notre Dame,
+Kenny Yeboah,2021,Mississippi,33.25
+Austin Allen,2022,Nebraska,30.62
+Chase Allen,2022,Iowa St.,34.12
+Daniel Bellinger,2022,San Diego St.,32.5
+Grant Calcaterra,2022,SMU,33.25
+Greg Dulcich,2022,UCLA,33.38
+Jake Ferguson,2022,Wisconsin,32.62
+Jeremiah Hall,2022,Oklahoma,31.62
+Peyton Hendershot,2022,Indiana,32.62
+Connor Heyward,2022,Michigan St.,31.88
+Curtis Hodges,2022,Arizona St.,34.5
+Charlie Kolar,2022,Iowa St.,34.5
+Isaiah Likely,2022,Coastal Carolina,31.88
+Trey McBride,2022,Colorado St.,32.5
+James Mitchell,2022,Virginia Tech,32.88
+Chigoziem Okonkwo,2022,Maryland,32.75
+Cade Otton,2022,Washington,32.75
+Teagan Quitoriano,2022,Oregon St.,33.5
+Jeremy Ruckert,2022,Ohio St.,32.62
+Cole Turner,2022,Nevada,33.0
+Jelani Woods,2022,Virginia,34.5
+Jalen Wydermyer,2022,Texas A&M,33.12
+Davis Allen,2023,Clemson,32.25
+Payne Durham,2023,Purdue,33.38
+Noah Gindorff,2023,North Dakota St.,33.12
+Dalton Kincaid,2023,Utah,32.62
+Tucker Kraft,2023,South Dakota St.,32.75
+Zack Kuntz,2023,Old Dominion,34.0
+Sam LaPorta,2023,Iowa,32.12
+Cameron Latu,2023,Alabama,32.38
+Will Mallory,2023,Miami,32.25
+Michael Mayer,2023,Notre Dame,31.62
+Luke Musgrave,2023,Oregon St.,32.62
+Kyle Patterson,2023,Air Force,32.5
+Luke Schoonmaker,2023,Michigan,32.88
+Brenton Strange,2023,Penn St.,31.12
+Leonard Taylor,2023,Cincinnati,32.75
+Travis Vokolek,2023,Nebraska,32.88
+Darnell Washington,2023,Georgia,34.38
+Blake Whiteheart,2023,Wake Forest,32.12
+Josh Whyle,2023,Cincinnati,31.5
+Brayden Willis,2023,Oklahoma,33.25
+Brock Bowers,2024,GEORGIA,32.75
+Ben Sinnott,2024,KANSAS ST,32.38
+Ja'Tavion Sanders,2024,TEXAS,32.88
+Cade Stover,2024,Ohio State,32.75
+Jared Wiley,2024,TCU,33.25
+Theo Johnson,2024,PENN STATE,33.0
+A.J. Barner,2024,MICHIGAN,33.38
+Tip Reiman,2024,ILLINOIS,32.88
+Jaheim Bell,2024,FLORIDA ST,33.0
+Tanner McLachlan,2024,ARIZONA,31.62
+Dallin Holker,2024,COLO STATE,33.62
+Erick All,2024,Iowa,33.0
+Jack Westover,2024,WASHINGTON,32.12
+McCallan Castles,2024,TENNESSEE,
+Trey Knox,2024,S CAROLINA,34.25
+Colson Yankoff,2024,UCLA,
+Brevyn Spann-Ford,2024,MINNESOTA,33.38
+Mason Fairchild,2024,KANSAS,
+Devin Culp,2024,WASHINGTON,32.88
+Cam Grandy,2024,ILL STATE,
+Lincoln Sefcik,2024,S ALABAMA,
+David Martin-Robinson,2024,TEMPLE,
+Zach Heins,2024,South Dakota St,
+Devon Garrison,2024,Pittsburg State,
+Treyton Welch,2024,WYOMING,
+Thomas Yassmin,2024,UTAH,
+Marshel Martin,2024,Sacramento St.,
+Trent Pennix,2024,NC STATE,
+Isaac Rex,2024,BYU,
+Joe Evans,2024,Iowa,
+Jacob Warren,2024,TENNESSEE,
+Dylan Leonard,2024,GA TECH,
+Joey Gatewood,2024,LOUISVILLE,
+Mason Pline,2024,FURMAN,
+Brenden Bates,2024,KENTUCKY,
+Alec Holler,2024,UCF,
+Max Wright,2024,TEXAS A&M,
+AJ Hence,2024,Western Michigan,
+Neal Johnson,2024,LA LAFAYET,
+Baylor Cupp,2024,TEXAS TECH,
+Nick Dixon,2024,Florida A&M,
+Kevin Foelsch,2024,New Haven,
+Geor'quarius Spivey,2024,Mississippi State,
+Austin Stogner,2024,OKLAHOMA,
+Chaese Jackson,2024,Robert Morris,
+Shelton Zeon,2024,UNLV,
+Jjay Mcafee,2024,GA SOUTHRN,
+Owen Glascoe,2024,Long Island,
+Riley Sharp,2024,OREGON ST,
+AJ Lewis,2024,Alabama State,
+Alex Larson,2024,Saint John's,
+Malcolm Epps,2024,PITTSBURGH,
+Mike O'Laughlin,2024,HOUSTON,
+Keaton Upshaw,2024,Georgia Southern,
+Luke Benson,2024,GA TECH,
+Andrew Van Buren,2024,Portland State,
+Derryk Snell,2024,Montana State,
+Kamari Young,2024,FL A&M,
+Mike Rigerman,2024,Findlay,
+Curtis Raymond III,2024,TCU,
+Johnny Dietl,2024,Shorter,
+Patrick McSweeney,2024,Citadel,
+Braden Brose,2024,Delaware,
+Messiah Swinson,2024,ARIZONA ST,
+Thomaz Whitford,2024,NEW MEX ST,
+Gino Campiotti,2024,UMass,
+Turon Ivy Jr.,2024,IDAHO,
+DJ Stevens,2024,JACKSON ST,
+Johnny Langan,2024,RUTGERS,
+Matt Alaimo,2024,Coastal Carolina,
+Nolan Quinlan,2024,LA MONROE,
+Steven Stilianos,2024,IOWA,
+TJ Banks,2024,Akron,
+Ryan Rivera,2024,Louisiana Tech,
+Shawn Bowman,2024,RUTGERS,
+Joshua Quiett,2024,Grambling,
+Easton Dean,2024,Iowa State,
+Blake Gobel,2024,E. Washington,
+Colin O'Brien,2024,Wyoming,
+Hayden Rucci,2024,WISCONSIN,
+Jaylan Franklin,2024,MICH STATE,
+Jordan Goco,2024,Austin Peay,
+Justice Dingle,2024,Kentucky,
+Braden Cassity,2024,Oklahoma State,
+Jacob Logan,2024,SE LA,
+Florian Bierbaumer,2024,Austria (Intl.),
+Ajay Belanger,2024,Western Carolina,
+Leak Bryant,2024,Long Island,
+Treyton Pickering,2024,Montana State,
+Jack Bradley,2024,RICE,
+Kyle Klink,2024,McNeese State,
+Steele Roring,2024,Pittsburg State,
+Hayden Meacham,2024,Weber State,
+Chris Carter,2024,Tulane,33.0
+Noah Massey,2024,West Virginia,
+Nathan Bax,2024,ARKANSAS,
+Patrick Murtagh,2024,Australia (Intl.),
+Josiah Johnson,2024,OKLA STATE,
+Justin Marcus,2024,Villanova,
+Tristan Ballard,2024,ARKAPB,
+Jack Whyte,2024,Western Illinois,
+George Takacs,2024,BOSTON COL,
+Jax Sherrard,2024,Sam Houston St.,
+Ron Tiavaasue,2024,NEW MEX ST,
+Abdou Diop,2024,Morgan State,
+Brandon Crum,2024,South Alabama,
+Zach Marsh Wojan,2024,UCF,
+Brennan Brown,2024,Howard,
+Brandon Shelnutt,2024,Limestone,
+Tyler Warren,2025,Penn State,31.75
+Colston Loveland,2025,Michigan,32.75
+Mason Taylor,2025,LSU,32.25
+Harold Fannin Jr,2025,Bowling Green,32.25
+Gunnar Helm,2025,Texas,32.75
+Terrance Ferguson,2025,Oregon,32.88
+Mitchell Evans,2025,Notre Dame,31.88
+Oronde Gadsden II,2025,Syracuse,33.38
+Jackson Hawes,2025,Georgia Tech,32.12
+Luke Lachey,2025,Iowa,32.12
+Thomas Fidone II,2025,Nebraska,34.0
+Gavin Bartholomew,2025,Pittsburgh,31.38
+Robbie Ouzts,2025,Alabama,31.25
+Moliki Matavao,2025,UCLA,32.5
+Dallen Bentley,2026,Utah,33.12
+Nate Boerkircher,2026,Texas A&M,32.62
+Josh Cuevas,2026,Alabama,30.62
+Oscar Delp,2026,Georgia,31.62
+Khalil Dinkins,2026,Penn State,31.62
+Jack Endries,2026,Texas,31.12
+John Michael Gyllenborg,2026,Wyoming,31.0
+Matthew Hibner,2026,SMU,32.38
+Justin Joly,2026,NC State,32.25
+Will Kacmarek,2026,Ohio State,32.25
+Jaren Kanak,2026,Oklahoma,30.5
+Miles Kitselman,2026,Tennessee,31.88
+Max Klare,2026,Ohio State,32.12
+Marlin Klein,2026,Michigan,32.38
+Tanner Koziol,2026,Houston,33.75
+RJ Maryland,2026,SMU,32.25
+Lake McRee,2026,USC,31.5
+Riley Nowakowski,2026,Indiana,31.5
+Eli Raridon,2026,Notre Dame,32.75
+DJ Rogers,2026,TCU,33.62
+Sam Roush,2026,Stanford,30.62
+Joe Royer,2026,Cincinnati,31.5
+Kenyon Sadiq,2026,Oregon,31.5
+Bauer Sharp,2026,LSU,31.75
+Eli Stowers,2026,Vanderbilt,32.62
+Michael Trigg,2026,Baylor,34.25
+Dae'Quan Wright,2026,Mississippi,32.25
